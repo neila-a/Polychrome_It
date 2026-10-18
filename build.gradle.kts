@@ -18,8 +18,10 @@ dependencies {
     // Minecraft 26.1+ 不再混淆，无需任何 mappings（yarn/官方均不需要）
     implementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
 
-    // Fabric API
-    //implementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
+    // Fabric API（26.3 必需：其 fabric-registry-sync-v0 会延迟内置注册表的 freeze，
+    // 否则 MC 26.3 在 Main.main 的 Bootstrap.bootStrap() 阶段就冻结注册表，
+    // 'main' 入口点里 new Block() 会因无法创建 intrusive holder 而崩溃）
+    implementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
 
     implementation("net.fabricmc:fabric-language-kotlin:1.14.2+kotlin.2.4.21")
 }
