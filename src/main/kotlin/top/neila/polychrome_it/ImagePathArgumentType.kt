@@ -12,16 +12,17 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import javax.imageio.ImageIO
 
 /**
  * 解析为 [Path] 的命令参数类型，替代 StringArgumentType.greedyString()：
  *
- * - [parse]：读取路径（可带引号，允许空格），基于游戏目录解析；
- *   目标不是已存在的常规文件时抛出带提示的错误。
+ * - [parse]：读取路径（可带引号，允许空格），基于游戏目录解析，并依次校验：
+ *   不是目录、文件存在、且能被 ImageIO 解码为 `BufferedImage`（PNG/JPEG/GIF/BMP/WBMP）。
  * - [listSuggestions]：根据已输入的部分路径，补全游戏目录下的文件与目录（目录带 `/` 后缀以便继续导航）。
  *
  * 注意：parse 抛出异常不会导致命令补全失效 —— Brigadier 的建议上下文会回退到
- * 上一个已解析节点（字面量 `imagepath`），其子节点仍包含本参数节点，
+ * 上一个已解析节点（字面量 `polychrome:setimagepath`），其子节点仍包含本参数节点，
  * ArgumentCommandNode.listSuggestions 会调用到这里的 [listSuggestions]。
  */
 class ImagePathArgumentType : ArgumentType<Path> {
@@ -38,6 +39,7 @@ class ImagePathArgumentType : ArgumentType<Path> {
         when {
             Files.isDirectory(path) -> throw ERROR_IS_DIRECTORY.createWithContext(reader, raw)
             !Files.isRegularFile(path) -> throw ERROR_NOT_FOUND.createWithContext(reader, raw)
+            !isImageReadable(path) -> throw ERROR_NOT_AN_IMAGE.createWithContext(reader, raw)
         }
 
         return path
@@ -91,6 +93,17 @@ class ImagePathArgumentType : ArgumentType<Path> {
         return raw
     }
 
+    /**
+     * 尝试将文件解码为 BufferedImage：
+     * [ImageIO.read] 在没有已注册的 ImageReader 能识别该格式时返回 null，
+     * 读取失败时抛出异常——两种情况都视为“不是可处理的图片”。
+     */
+    private fun isImageReadable(path: Path): Boolean = try {
+        ImageIO.read(path.toFile()) != null
+    } catch (e: Exception) {
+        false
+    }
+
     private fun quoteIfNeeded(value: String): String {
         if (value.all { StringReader.isAllowedInUnquotedString(it) }) return value
         return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
@@ -103,6 +116,10 @@ class ImagePathArgumentType : ArgumentType<Path> {
 
         private val ERROR_IS_DIRECTORY = DynamicCommandExceptionType { raw ->
             Component.translatable("polychrome_it.commands.imagepath.is_directory", raw)
+        }
+
+        private val ERROR_NOT_AN_IMAGE = DynamicCommandExceptionType { raw ->
+            Component.translatable("polychrome_it.commands.imagepath.not_an_image", raw)
         }
 
         private val EXAMPLES = listOf("/path/to/a/vaild/image")
