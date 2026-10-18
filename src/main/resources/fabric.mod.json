@@ -1,0 +1,24 @@
+{
+    "schemaVersion": 1,
+    "id": "polychrome_it",
+    "version": "${version}",
+    "name": "Polychrome It!",
+    "description": "Add a block that changes its color based on its position.",
+    "authors": ["Neila"],
+    "contact": {
+        "sources": "https://github.com/neila-a/polychrome_it"
+    },
+    "license": "GPL-3.0-or-later",
+    "icon": "assets/polychrome_it/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "top.neila.polychrome_it.PolychromeIt"
+        ]
+    },
+    "depends": {
+        "fabricloader": ">=0.15.0",
+        "minecraft": "~26.3",
+        "java": ">=25"
+    }
+}
