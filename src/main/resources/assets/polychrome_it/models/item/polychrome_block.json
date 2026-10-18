@@ -1,3 +1,6 @@
 {
-  "parent": "polychrome_it:block/polychrome_block"
+  "model": {
+    "type": "minecraft:model",
+    "model": "polychrome_it:block/polychrome_block"
+  }
 }

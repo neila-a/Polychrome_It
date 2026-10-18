@@ -1,6 +1,8 @@
 package top.neila.polychrome_it
 
+import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents
+import net.minecraft.client.color.block.BlockTintSource
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
@@ -17,22 +19,21 @@ object PolychromeBlocks {
 
     val POLYCHROME_BLOCK = registerBlock(
         "polychrome_block",
-        ::Block,
-        BlockBehaviour.Properties.of().strength(4.0f)
+        ::PolychromeBlockTintSource
     )
 
-    private fun <T : Block> registerBlock(
+    private fun registerBlock(
         path: String,
-        factory: (BlockBehaviour.Properties) -> T,
-        properties: BlockBehaviour.Properties
-    ): T {
+        blockTintSource: () -> BlockTintSource
+    ): Block {
         val identifier = Identifier.fromNamespaceAndPath(MOD_ID, path)
         val blockKey = ResourceKey.create(Registries.BLOCK, identifier)
 
         val block = Registry.register(
             BuiltInRegistries.BLOCK,
             blockKey,
-            factory(properties.setId(blockKey))
+
+            Block(BlockBehaviour.Properties.of().strength(4.0f).setId(blockKey))
         )
 
         val itemKey = ResourceKey.create(Registries.ITEM, identifier)
@@ -43,10 +44,12 @@ object PolychromeBlocks {
         )
         blockItem.registerBlocks(Item.BY_BLOCK, blockItem)
 
+        BlockColorRegistry.register(listOf(blockTintSource()), block)
+
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COLORED_BLOCKS).register { output ->
             output.accept(block)
         }
-        
+
         return block
     }
 
