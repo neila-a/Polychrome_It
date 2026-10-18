@@ -1,11 +1,13 @@
 package top.neila.polychrome_it
 
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.CreativeModeTabs
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockBehaviour
@@ -41,6 +43,10 @@ object PolychromeBlocks {
         )
         blockItem.registerBlocks(Item.BY_BLOCK, blockItem)
 
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COLORED_BLOCKS).register { output ->
+            output.accept(block)
+        }
+        
         return block
     }
 
