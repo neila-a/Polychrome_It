@@ -14,12 +14,16 @@
     "entrypoints": {
         "main": [
             "top.neila.polychrome_it.PolychromeIt"
+        ],
+        "client": [
+            "top.neila.polychrome_it.PolychromeItClient"
         ]
     },
     "depends": {
         "fabricloader": ">=0.15.0",
         "minecraft": "~26.3",
         "java": ">=25",
+        "fabric-command-api-v2": ">=3.1.2",
         "fabric-rendering-v1": ">=27.1.0",
         "fabric-creative-tab-api-v1": ">=5.0.22"
     }

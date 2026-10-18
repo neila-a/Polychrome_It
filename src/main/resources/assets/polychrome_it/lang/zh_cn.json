@@ -1,3 +1,5 @@
 {
-  "block.polychrome_it.polychrome_block": "多彩方块"
+  "block.polychrome_it.polychrome_block": "多彩方块",
+  "polychrome_it.commands.imagepath.not_found": "文件不存在：%s",
+  "polychrome_it.commands.imagepath.is_directory": "这是一个目录而非文件：%s"
 }

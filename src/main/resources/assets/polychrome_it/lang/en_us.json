@@ -1,3 +1,5 @@
 {
-  "block.polychrome_it.polychrome_block": "Polychrome Block"
+  "block.polychrome_it.polychrome_block": "Polychrome Block",
+  "polychrome_it.commands.imagepath.not_found": "File not found: %s",
+  "polychrome_it.commands.imagepath.is_directory": "This is a directory, not a file: %s"
 }
