@@ -1,4 +1,4 @@
-package top.neila.polychrome_it
+package top.neila.polychrome_it.client
 
 import net.minecraft.client.color.block.BlockTintSource
 import net.minecraft.client.renderer.block.BlockAndTintGetter
@@ -13,11 +13,9 @@ import kotlin.math.abs
  */
 fun numberToRGBScale(number: Int) = abs(number) and 255
 
-class PolychromeBlockTintSource : BlockTintSource {
-    override fun colorInWorld(state: BlockState, level: BlockAndTintGetter, pos: BlockPos): Int {
-        val color = ARGB.color(numberToRGBScale(pos.x), numberToRGBScale(pos.y), numberToRGBScale(pos.z))
-        return color
-    }
+class SimpleGradientTintSource : BlockTintSource {
+    override fun colorInWorld(state: BlockState, level: BlockAndTintGetter, pos: BlockPos) =
+        ARGB.color(numberToRGBScale(pos.x), numberToRGBScale(pos.y), numberToRGBScale(pos.z))
 
     override fun color(state: BlockState) = ARGB.opaque(0x000000)
 }

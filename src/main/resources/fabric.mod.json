@@ -13,10 +13,10 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "top.neila.polychrome_it.PolychromeIt"
+            "top.neila.polychrome_it.main.PolychromeIt"
         ],
         "client": [
-            "top.neila.polychrome_it.PolychromeItClient"
+            "top.neila.polychrome_it.client.PolychromeItClient"
         ]
     },
     "depends": {

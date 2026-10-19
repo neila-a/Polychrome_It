@@ -1,10 +1,11 @@
-package top.neila.polychrome_it
+package top.neila.polychrome_it.main
 
 import net.fabricmc.api.ModInitializer
+import top.neila.polychrome_it.PolychromeBlocks
 
 class PolychromeIt : ModInitializer {
     override fun onInitialize() {
         PolychromeBlocks.init()
-        PolychromeCommands.register()
+        registerCommands()
     }
 }

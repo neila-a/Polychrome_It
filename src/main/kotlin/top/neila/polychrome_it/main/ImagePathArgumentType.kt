@@ -1,4 +1,4 @@
-package top.neila.polychrome_it
+package top.neila.polychrome_it.main
 
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
@@ -8,11 +8,14 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.chat.Component
+import java.awt.image.BufferedImage
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import javax.imageio.ImageIO
+
+var bufferedImage: BufferedImage? = null
 
 /**
  * 解析为 [Path] 的命令参数类型，替代 StringArgumentType.greedyString()：
@@ -26,7 +29,6 @@ import javax.imageio.ImageIO
  * ArgumentCommandNode.listSuggestions 会调用到这里的 [listSuggestions]。
  */
 class ImagePathArgumentType : ArgumentType<Path> {
-
     private val basePath: Path = FabricLoader.getInstance().gameDir
 
     override fun parse(reader: StringReader): Path {
@@ -53,8 +55,12 @@ class ImagePathArgumentType : ArgumentType<Path> {
     ): CompletableFuture<Suggestions> {
         val remaining = builder.remaining.replace('\\', '/')
         val separatorIndex = remaining.lastIndexOf('/')
-        val dirPart = if (separatorIndex >= 0) remaining.substring(0, separatorIndex + 1) else ""
-        val prefix = if (separatorIndex >= 0) remaining.substring(separatorIndex + 1) else remaining
+        val dirPart = if (separatorIndex >= 0)
+            remaining.substring(0, separatorIndex + 1)
+        else ""
+        val prefix = if (separatorIndex >= 0)
+            remaining.substring(separatorIndex + 1)
+        else remaining
 
         val searchDir = basePath.resolve(dirPart).normalize()
         if (!Files.isDirectory(searchDir)) return builder.buildFuture()
@@ -84,30 +90,36 @@ class ImagePathArgumentType : ArgumentType<Path> {
         return builder.buildFuture()
     }
 
-    private fun unquote(raw: String): String {
-        if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"')) {
-            return raw.substring(1, raw.length - 1)
+    private fun unquote(raw: String) =
+        if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"'))
+            raw.substring(1, raw.length - 1)
                 .replace("\\\"", "\"")
                 .replace("\\\\", "\\")
-        }
-        return raw
-    }
+        else
+            raw
 
     /**
      * 尝试将文件解码为 BufferedImage：
      * [ImageIO.read] 在没有已注册的 ImageReader 能识别该格式时返回 null，
      * 读取失败时抛出异常——两种情况都视为“不是可处理的图片”。
      */
-    private fun isImageReadable(path: Path): Boolean = try {
-        ImageIO.read(path.toFile()) != null
-    } catch (e: Exception) {
-        false
-    }
+    private fun isImageReadable(path: Path) =
+        try {
+            bufferedImage = ImageIO.read(path.toFile())
+            bufferedImage != null
+        } catch (e: Exception) {
+            false
+        }
 
-    private fun quoteIfNeeded(value: String): String {
-        if (value.all { StringReader.isAllowedInUnquotedString(it) }) return value
-        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
-    }
+
+    private fun quoteIfNeeded(value: String) =
+        if (value.all { StringReader.isAllowedInUnquotedString(it) })
+            value
+        else
+            "\"" + value
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"") + "\""
+
 
     companion object {
         private val ERROR_NOT_FOUND = DynamicCommandExceptionType { raw ->

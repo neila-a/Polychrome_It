@@ -1,4 +1,4 @@
-package top.neila.polychrome_it
+package top.neila.polychrome_it.main
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
@@ -30,8 +30,6 @@ class ImagePathSavedData(var imagePath: String = "") : SavedData() {
             DataFixTypes.LEVEL
         )
 
-        fun get(server: MinecraftServer): ImagePathSavedData {
-            return server.overworld().dataStorage.computeIfAbsent(TYPE)
-        }
+        fun get(server: MinecraftServer) = server.overworld().dataStorage.computeIfAbsent(TYPE)
     }
 }
