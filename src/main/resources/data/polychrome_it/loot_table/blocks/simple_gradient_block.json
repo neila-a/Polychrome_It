@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "polychrome_it:polychrome_block"
+          "name": "polychrome_it:simple_gradient_block"
         }
       ],
       "conditions": [

@@ -10,7 +10,6 @@ import net.minecraft.server.permissions.Permissions
 import java.nio.file.Path
 
 object PolychromeCommands {
-
     fun register() {
         // 自定义参数类型必须在服务端与客户端都注册（模组为 "*" 环境，两端均会执行 onInitialize），
         // 否则客户端无法反序列化命令树。fabric-registry-sync-v0 会延迟内置注册表冻结，

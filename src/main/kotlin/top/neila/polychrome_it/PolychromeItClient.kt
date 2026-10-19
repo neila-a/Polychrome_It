@@ -13,7 +13,11 @@ class PolychromeItClient : ClientModInitializer {
     override fun onInitializeClient() {
         BlockColorRegistry.register(
             listOf(PolychromeBlockTintSource()),
-            PolychromeBlocks.POLYCHROME_BLOCK
+            PolychromeBlocks.SIMPLE_GRADIENT_BLOCK,
+        )
+        BlockColorRegistry.register(
+            listOf(PolychromeBlockTintSource()),
+            PolychromeBlocks.IMAGE_PIXEL_BLOCK
         )
     }
 }

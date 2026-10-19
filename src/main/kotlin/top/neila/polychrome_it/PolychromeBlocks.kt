@@ -15,7 +15,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour
 object PolychromeBlocks {
     private const val MOD_ID = "polychrome_it"
 
-    val POLYCHROME_BLOCK = registerBlock("polychrome_block")
+    val SIMPLE_GRADIENT_BLOCK = registerBlock("simple_gradient_block")
+    val IMAGE_PIXEL_BLOCK = registerBlock("image_pixel_block")
 
     private fun registerBlock(path: String): Block {
         val identifier = Identifier.fromNamespaceAndPath(MOD_ID, path)
@@ -36,8 +37,8 @@ object PolychromeBlocks {
         )
         blockItem.registerBlocks(Item.BY_BLOCK, blockItem)
 
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COLORED_BLOCKS).register { output ->
-            output.accept(block)
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COLORED_BLOCKS).register {
+            it.accept(block)
         }
 
         return block
