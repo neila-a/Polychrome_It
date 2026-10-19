@@ -1,4 +1,4 @@
-package top.neila.polychrome_it.main
+package top.neila.polychrome_it.client
 
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
@@ -14,8 +14,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import javax.imageio.ImageIO
-
-var bufferedImage: BufferedImage? = null
 
 /**
  * 解析为 [Path] 的命令参数类型，替代 StringArgumentType.greedyString()：
@@ -105,8 +103,7 @@ class ImagePathArgumentType : ArgumentType<Path> {
      */
     private fun isImageReadable(path: Path) =
         try {
-            bufferedImage = ImageIO.read(path.toFile())
-            bufferedImage != null
+            ImageIO.read(path.toFile()) != null
         } catch (e: Exception) {
             false
         }
