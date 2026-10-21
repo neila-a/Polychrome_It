@@ -4,7 +4,7 @@ import com.terraformersmc.modmenu.api.ConfigScreenFactory
 import com.terraformersmc.modmenu.api.ModMenuApi
 import me.shedaniel.clothconfig2.api.ConfigBuilder
 import net.minecraft.network.chat.Component
-import top.neila.polychrome_it.ImagePathClientStore
+import top.neila.polychrome_it.imagePath
 
 class PolychromeModMenuIntegration : ModMenuApi {
     override fun getModConfigScreenFactory(): ConfigScreenFactory<*> = { parent ->
@@ -20,11 +20,11 @@ class PolychromeModMenuIntegration : ModMenuApi {
         )
         val entry = builder.entryBuilder.startStrField(
             Component.translatable("polychrome_it.config.imagepath"),
-            ImagePathClientStore.imagePath
+            imagePath
         )
         entry.defaultValue = { "" }
         entry.saveConsumer = { path ->
-            ImagePathClientStore.setImagePath(path)
+            imagePath = path
         }
         general.addEntry(entry.build())
         

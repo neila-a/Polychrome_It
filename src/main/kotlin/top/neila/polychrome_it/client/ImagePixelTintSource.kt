@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.block.BlockAndTintGetter
 import net.minecraft.core.BlockPos
 import net.minecraft.util.ARGB
 import net.minecraft.world.level.block.state.BlockState
-import top.neila.polychrome_it.ImagePathClientStore
+import top.neila.polychrome_it.cachedImage
 import java.awt.image.BufferedImage
 import kotlin.math.abs
 
@@ -14,7 +14,7 @@ const val grassBlockTopAverageColor = 0x91
 
 class ImagePixelTintSource : BlockTintSource {
     override fun colorInWorld(state: BlockState, level: BlockAndTintGetter, pos: BlockPos): Int {
-        val image: BufferedImage = ImagePathClientStore.cachedImage ?: return black
+        val image: BufferedImage = cachedImage ?: return black
         val x = abs(pos.x) % image.width
         val y = abs(pos.z) % image.height
         try {
