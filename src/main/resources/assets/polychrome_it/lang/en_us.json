@@ -1,7 +1,6 @@
 {
   "block.polychrome_it.simple_gradient_block": "Simple Gradient Block",
   "block.polychrome_it.image_pixel_block": "Image Pixel Block",
-  "polychrome_it.commands.imagepath.not_found": "File not found: %s",
-  "polychrome_it.commands.imagepath.is_directory": "This is a directory, not a file: %s",
-  "polychrome_it.commands.imagepath.not_an_image": "Not a readable image file: %s"
+  "title.polychrome_it.config": "Config Polychrome It!",
+  "polychrome_it.config.imagepath": "Image path"
 }

@@ -7,15 +7,17 @@ import net.minecraft.util.ARGB
 import net.minecraft.world.level.block.state.BlockState
 import kotlin.math.abs
 
-/**
- * 将数字缩进RGB范围
- * 原理：and 255 == % 256
- */
-fun numberToRGBScale(number: Int) = abs(number) and 255
-
 class SimpleGradientTintSource : BlockTintSource {
+    companion object {
+        /**
+         * 将数字缩进RGB范围  
+         * 原理：and 255 == % 256
+         */
+        fun numberToRGBScale(number: Int) = abs(number) and 255
+    }
+
     override fun colorInWorld(state: BlockState, level: BlockAndTintGetter, pos: BlockPos) =
         ARGB.color(numberToRGBScale(pos.x), numberToRGBScale(pos.y), numberToRGBScale(pos.z))
 
-    override fun color(state: BlockState) = ARGB.opaque(0x000000)
+    override fun color(state: BlockState) = black
 }

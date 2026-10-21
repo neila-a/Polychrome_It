@@ -1,4 +1,4 @@
-package top.neila.polychrome_it.client
+package top.neila.polychrome_it
 
 import net.fabricmc.loader.api.FabricLoader
 import java.awt.image.BufferedImage
@@ -19,7 +19,7 @@ import javax.imageio.ImageIO
  */
 object ImagePathClientStore {
     private val configFile: Path =
-        FabricLoader.getInstance().configDir.resolve("polychrome_it/image_path.txt")
+        FabricLoader.getInstance().configDir.resolve("polychrome_it_image_path.txt")
 
     /** 当前图片的绝对路径；为空字符串表示未设置。 */
     @Volatile
@@ -55,14 +55,16 @@ object ImagePathClientStore {
 
     private fun load(): String =
         try {
-            if (Files.isRegularFile(configFile)) Files.readString(configFile).trim() else ""
+            if (Files.isRegularFile(configFile))
+                Files.readString(configFile).trim()
+            else
+                ""
         } catch (e: IOException) {
             ""
         }
 
     private fun save() {
         try {
-            Files.createDirectories(configFile.parent)
             Files.writeString(configFile, imagePath)
         } catch (e: IOException) {
             // 写盘失败（如只读文件系统）时仅保留内存中的值

@@ -13,6 +13,15 @@ base {
     archivesName.set(project.property("archives_base_name").toString())
 }
 
+repositories {
+    maven {
+		url = uri("https://maven.shedaniel.me/")
+	}
+    maven { 
+		url = uri("https://maven.terraformersmc.com/releases/")
+	}
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
     // Minecraft 26.1+ 不再混淆，无需任何 mappings（yarn/官方均不需要）
@@ -24,6 +33,11 @@ dependencies {
     implementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
 
     implementation("net.fabricmc:fabric-language-kotlin:1.14.2+kotlin.2.4.21")
+
+    implementation("me.shedaniel.cloth:cloth-config-fabric:26.3.159") {
+        exclude("net.fabricmc.fabric-api")
+    }
+    implementation("com.terraformersmc:modmenu:21.0.0")
 }
 
 kotlin {

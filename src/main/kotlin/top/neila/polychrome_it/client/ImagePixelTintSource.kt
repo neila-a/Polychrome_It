@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.block.BlockAndTintGetter
 import net.minecraft.core.BlockPos
 import net.minecraft.util.ARGB
 import net.minecraft.world.level.block.state.BlockState
+import top.neila.polychrome_it.ImagePathClientStore
 import java.awt.image.BufferedImage
 import kotlin.math.abs
 

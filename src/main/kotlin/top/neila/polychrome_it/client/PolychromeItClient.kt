@@ -12,7 +12,6 @@ import top.neila.polychrome_it.PolychromeBlocks
  */
 class PolychromeItClient : ClientModInitializer {
     override fun onInitializeClient() {
-        registerClientCommands()
         BlockColorRegistry.register(
             listOf(SimpleGradientTintSource()),
             PolychromeBlocks.SIMPLE_GRADIENT_BLOCK,
