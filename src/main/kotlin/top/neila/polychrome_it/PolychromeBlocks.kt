@@ -13,10 +13,11 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockBehaviour
 
 object PolychromeBlocks {
-    private const val MOD_ID = "polychrome_it"
+    const val MOD_ID = "polychrome_it"
 
     val SIMPLE_GRADIENT_BLOCK = registerBlock("simple_gradient_block")
-    val IMAGE_PIXEL_BLOCK = registerBlock("image_pixel_block")
+    const val IMAGE_PIXEL_BLOCK_ID = "image_pixel_block"
+    val IMAGE_PIXEL_BLOCK = registerBlock(IMAGE_PIXEL_BLOCK_ID)
 
     private fun registerBlock(path: String): Block {
         val identifier = Identifier.fromNamespaceAndPath(MOD_ID, path)

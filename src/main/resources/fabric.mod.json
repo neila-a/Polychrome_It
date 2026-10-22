@@ -33,6 +33,7 @@
         "fabric-creative-tab-api-v1": ">=5.0.22",
 
         "cloth-config": ">=26.3.159",
-        "modmenu": ">=21.0.0"
+        "modmenu": ">=21.0.0",
+        "distanthorizons": ">=3.3.4"
     }
 }

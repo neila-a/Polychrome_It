@@ -26,7 +26,7 @@ var imagePath = ""
         field = path
 
         try {
-            Files.writeString(configFile, imagePath)
+            Files.writeString(configFile, path)
         } catch (e: IOException) {
             // 写盘失败（如只读文件系统）时仅保留内存中的值
         }

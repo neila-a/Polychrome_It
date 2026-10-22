@@ -3,6 +3,8 @@ package top.neila.polychrome_it.client
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry
 import top.neila.polychrome_it.PolychromeBlocks
+import top.neila.polychrome_it.client.tintsources.ImagePixelTintSource
+import top.neila.polychrome_it.client.tintsources.SimpleGradientTintSource
 
 /**
  * 客户端专用入口点。
@@ -13,11 +15,11 @@ import top.neila.polychrome_it.PolychromeBlocks
 class PolychromeItClient : ClientModInitializer {
     override fun onInitializeClient() {
         BlockColorRegistry.register(
-            listOf(SimpleGradientTintSource()),
+            listOf(SimpleGradientTintSource),
             PolychromeBlocks.SIMPLE_GRADIENT_BLOCK,
         )
         BlockColorRegistry.register(
-            listOf(ImagePixelTintSource()),
+            listOf(ImagePixelTintSource),
             PolychromeBlocks.IMAGE_PIXEL_BLOCK
         )
     }

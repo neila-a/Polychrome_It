@@ -20,6 +20,12 @@ repositories {
     maven { 
 		url = uri("https://maven.terraformersmc.com/releases/")
 	}
+
+    // define the maven repo to search
+    maven {
+        name = "Modrinth"
+        url = uri("https://api.modrinth.com/maven")
+    }
 }
 
 dependencies {
@@ -38,6 +44,7 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     }
     implementation("com.terraformersmc:modmenu:21.0.0")
+    implementation("maven.modrinth:DistantHorizonsApi:7.2.0")
 }
 
 kotlin {
