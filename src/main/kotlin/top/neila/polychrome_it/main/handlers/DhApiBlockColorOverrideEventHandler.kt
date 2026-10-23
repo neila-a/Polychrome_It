@@ -1,15 +1,15 @@
-package top.neila.polychrome_it.main.events
+package top.neila.polychrome_it.main.handlers
 
 import com.seibel.distanthorizons.api.DhApi
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockColorOverrideEvent
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam
+import net.minecraft.core.BlockPos
 import net.minecraft.util.ARGB
-import top.neila.polychrome_it.PolychromeBlocks
-import top.neila.polychrome_it.posToARGB
+import top.neila.polychrome_it.MOD_ID
+import top.neila.polychrome_it.PolychromeBlock
 
 object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
-    private const val IMAGE_PIXEL_BLOCK_NAMESPACE =
-        PolychromeBlocks.MOD_ID + ":" + PolychromeBlocks.IMAGE_PIXEL_BLOCK_ID
+    private val IMAGE_PIXEL_BLOCK_NAMESPACE = PolychromeBlock.image_pixel_block.registeredName
 
     override fun onBlockColorOverridden(event: DhApiEventParam<EventParam>) {
         val param = event.value
@@ -20,7 +20,11 @@ object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
         )
         val thisWrapper = param.blockStateWrapper
         if (rightWrapper.serialString == thisWrapper.serialString) {
-            val color = posToARGB(param.blockPosX, param.blockPosZ)
+            val color = PolychromeBlock.image_pixel_block.tint(BlockPos(
+                param.blockPosX,
+                param.blockPosY,
+                param.blockPosZ
+            ))
             param.setColor(
                 ARGB.red(color),
                 ARGB.green(color),
