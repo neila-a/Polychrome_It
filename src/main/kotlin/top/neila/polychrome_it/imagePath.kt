@@ -40,6 +40,9 @@ var imagePath = ""
             }
     }
 
-/** 当前图片的解码结果；路径为空或文件不可读时为 null。 */
+/** 
+ * 当前图片的解码结果；
+ * 路径为空或文件不可读时为 null。
+ */
 var cachedImage: BufferedImage? = null
     private set

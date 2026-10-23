@@ -79,7 +79,7 @@ java {
 }
 
 tasks.jar {
-    from("LICENSE") {
-        rename { "${it}_${archiveBaseName.get()}" }
+    from("LICENSE.md") {
+        rename { "LICENSE_${archiveBaseName.get()}.md" }
     }
 }
