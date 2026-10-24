@@ -83,3 +83,13 @@ tasks.jar {
         rename { "LICENSE_${archiveBaseName.get()}.md" }
     }
 }
+
+fabricApi {
+	configureDataGeneration() {
+		// 客户端数据生成。NixOS 上必须经 direnv 进入 devShell 再运行 Gradle
+		// （flake.nix 的 devShell 已导出 LD_LIBRARY_PATH），否则 LWJGL 解压到
+		// /tmp 的原生库找不到 libstdc++/libEGL 等依赖，会在 Main 加载
+		// OpenGL/OpenAL 原生库阶段直接崩溃。
+		client = true
+	}
+}

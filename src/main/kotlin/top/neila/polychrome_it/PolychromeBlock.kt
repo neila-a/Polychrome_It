@@ -44,7 +44,7 @@ enum class PolychromeBlock : Tinter {
     },
     simple_gradient_block {
         /**
-         * 将数字缩进RGB范围  
+         * 将数字缩进RGB范围
          * 原理：`and 255` == `% 256`
          */
         private fun numberToRGBScale(number: Int) = abs(number) and 255
@@ -54,12 +54,6 @@ enum class PolychromeBlock : Tinter {
     };
 
     val registered: Block
-
-    /**
-     * 参考：{@link Block#toString())}
-     */
-    val registeredName: String
-        get() = BuiltInRegistries.BLOCK.wrapAsHolder(registered).registeredName
 
     init {
         val identifier = Identifier.fromNamespaceAndPath(MOD_ID, name)
@@ -84,4 +78,10 @@ enum class PolychromeBlock : Tinter {
             it.accept(registered)
         }
     }
+
+    /**
+     * 参考：{@link Block#toString())}
+     */
+    val registeredName: String
+        get() = BuiltInRegistries.BLOCK.wrapAsHolder(registered).registeredName
 }

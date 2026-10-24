@@ -32,3 +32,5 @@ gradle
 .env
 .idea
 run
+.direnv
+src/main/generated

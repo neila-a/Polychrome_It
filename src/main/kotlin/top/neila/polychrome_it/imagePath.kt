@@ -32,17 +32,22 @@ var imagePath = ""
         }
 
 
-        cachedImage = null
-        if (path.isNotEmpty())
-            try {
-                cachedImage = ImageIO.read(Path.of(path).toFile())
-            } catch (e: Exception) {
-            }
+        cachedImage = getImage(path)
     }
 
-/** 
+private fun getImage(path: String) =
+    if (path.isNotEmpty())
+        try {
+            ImageIO.read(Path.of(path).toFile())
+        } catch (e: Exception) {
+            null
+        }
+    else
+        null
+
+/**
  * 当前图片的解码结果；
  * 路径为空或文件不可读时为 null。
  */
-var cachedImage: BufferedImage? = null
+var cachedImage: BufferedImage? = getImage(imagePath)
     private set
