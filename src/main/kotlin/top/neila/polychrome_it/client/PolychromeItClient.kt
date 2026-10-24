@@ -2,8 +2,7 @@ package top.neila.polychrome_it.client
 
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry
-import top.neila.polychrome_it.PolychromeBlock
-import top.neila.polychrome_it.black
+import top.neila.polychrome_it.PolychromeItBlock
 
 /**
  * 客户端专用入口点。
@@ -13,7 +12,7 @@ import top.neila.polychrome_it.black
  */
 class PolychromeItClient : ClientModInitializer {
     override fun onInitializeClient() {
-        for (block in PolychromeBlock.entries) {
+        for (block in PolychromeItBlock.entries) {
             BlockColorRegistry.register(
                 listOf(DerivedBlockTintSource(block)),
                 block.registered

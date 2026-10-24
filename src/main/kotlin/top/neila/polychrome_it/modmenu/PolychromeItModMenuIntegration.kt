@@ -6,7 +6,7 @@ import me.shedaniel.clothconfig2.api.ConfigBuilder
 import net.minecraft.network.chat.Component
 import top.neila.polychrome_it.imagePath
 
-class PolychromeModMenuIntegration : ModMenuApi {
+class PolychromeItModMenuIntegration : ModMenuApi {
     override fun getModConfigScreenFactory(): ConfigScreenFactory<*> = { parent ->
         val builder = ConfigBuilder.create()
         builder.parentScreen = parent

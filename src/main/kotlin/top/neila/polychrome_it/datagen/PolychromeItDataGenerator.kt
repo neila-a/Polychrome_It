@@ -7,6 +7,6 @@ class PolychromeItDataGenerator : DataGeneratorEntrypoint {
     override fun onInitializeDataGenerator(fabricDataGenerator: FabricDataGenerator) {
         val pack = fabricDataGenerator.createPack()
         pack.addProvider(::PolychromeItLootTableProvider)
-        pack.addProvider(::PolychromeModelProvider)
+        pack.addProvider(::PolychromeItModelProvider)
     }
 }

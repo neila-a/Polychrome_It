@@ -21,7 +21,7 @@
             "top.neila.polychrome_it.client.PolychromeItClient"
         ],
         "modmenu": [
-            "top.neila.polychrome_it.modmenu.PolychromeModMenuIntegration"
+            "top.neila.polychrome_it.modmenu.PolychromeItModMenuIntegration"
         ],
         "fabric-datagen": [
             "top.neila.polychrome_it.datagen.PolychromeItDataGenerator"

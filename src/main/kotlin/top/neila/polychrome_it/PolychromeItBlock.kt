@@ -22,7 +22,7 @@ const val MOD_ID = "polychrome_it"
  * 采用枚举，是因为它有键  
  * 否则完全可以用密封类
  */
-enum class PolychromeBlock : Tinter {
+enum class PolychromeItBlock : Tinter {
     image_pixel_block {
         private val grassBlockTopAverageColor = 0x91
         override fun tint(pos: BlockPos): Int {

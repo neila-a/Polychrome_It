@@ -5,11 +5,10 @@ import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockCo
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam
 import net.minecraft.core.BlockPos
 import net.minecraft.util.ARGB
-import top.neila.polychrome_it.MOD_ID
-import top.neila.polychrome_it.PolychromeBlock
+import top.neila.polychrome_it.PolychromeItBlock
 
 object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
-    private val IMAGE_PIXEL_BLOCK_NAMESPACE = PolychromeBlock.image_pixel_block.registeredName
+    private val IMAGE_PIXEL_BLOCK_NAMESPACE = PolychromeItBlock.image_pixel_block.registeredName
 
     override fun onBlockColorOverridden(event: DhApiEventParam<EventParam>) {
         val param = event.value
@@ -20,7 +19,7 @@ object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
         )
         val thisWrapper = param.blockStateWrapper
         if (rightWrapper.serialString == thisWrapper.serialString) {
-            val color = PolychromeBlock.image_pixel_block.tint(BlockPos(
+            val color = PolychromeItBlock.image_pixel_block.tint(BlockPos(
                 param.blockPosX,
                 param.blockPosY,
                 param.blockPosZ
