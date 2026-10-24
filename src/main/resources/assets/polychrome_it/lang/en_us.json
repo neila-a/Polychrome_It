@@ -1,6 +1,4 @@
 {
   "block.polychrome_it.simple_gradient_block": "Simple Gradient Block",
-  "block.polychrome_it.image_pixel_block": "Image Pixel Block",
-  "title.polychrome_it.config": "Config Polychrome It!",
-  "polychrome_it.config.imagepath": "Image path"
+  "block.polychrome_it.image_pixel_block": "Image Pixel Block"
 }

@@ -40,10 +40,6 @@ dependencies {
 
     implementation("net.fabricmc:fabric-language-kotlin:1.14.2+kotlin.2.4.21")
 
-    implementation("me.shedaniel.cloth:cloth-config-fabric:26.3.159") {
-        exclude("net.fabricmc.fabric-api")
-    }
-    implementation("com.terraformersmc:modmenu:21.0.0")
     implementation("maven.modrinth:DistantHorizonsApi:7.2.0")
 }
 
@@ -86,10 +82,6 @@ tasks.jar {
 
 fabricApi {
 	configureDataGeneration() {
-		// 客户端数据生成。NixOS 上必须经 direnv 进入 devShell 再运行 Gradle
-		// （flake.nix 的 devShell 已导出 LD_LIBRARY_PATH），否则 LWJGL 解压到
-		// /tmp 的原生库找不到 libstdc++/libEGL 等依赖，会在 Main 加载
-		// OpenGL/OpenAL 原生库阶段直接崩溃。
 		client = true
 	}
 }

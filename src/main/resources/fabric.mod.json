@@ -35,8 +35,6 @@
         "fabric-command-api-v2": ">=3.1.2",
         "fabric-rendering-v1": ">=27.1.0",
         "fabric-creative-tab-api-v1": ">=5.0.22",
-        "cloth-config": ">=26.3.159",
-        "modmenu": ">=21.0.0",
         "dh-api": ">=1.0"
     }
 }

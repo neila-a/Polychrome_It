@@ -1,6 +1,7 @@
 package top.neila.polychrome_it
 
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
@@ -13,10 +14,24 @@ import net.minecraft.world.item.CreativeModeTabs
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockBehaviour
+import java.awt.image.BufferedImage
+import java.nio.file.Path
+import javax.imageio.ImageIO
 import kotlin.math.abs
 
 val black = ARGB.opaque(0x000000)
 const val MOD_ID = "polychrome_it"
+
+val imageFilename = "polychrome_it_image"
+val imagePath: Path =
+    FabricLoader.getInstance().configDir.resolve(imageFilename)
+var readImage: BufferedImage? = getImage()
+fun getImage() =
+    try {
+        ImageIO.read(imagePath.toFile())
+    } catch (e: Exception) {
+        null
+    }
 
 /*
  * 采用枚举，是因为它有键  
@@ -24,9 +39,10 @@ const val MOD_ID = "polychrome_it"
  */
 enum class PolychromeItBlock : Tinter {
     image_pixel_block {
+
         private val grassBlockTopAverageColor = 0x91
         override fun tint(pos: BlockPos): Int {
-            val image = cachedImage ?: return black
+            val image = readImage ?: return black
             val x = abs(pos.x) % image.width
             val y = abs(pos.z) % image.height
             try {
