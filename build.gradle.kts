@@ -54,12 +54,22 @@ tasks.processResources {
     inputs.property("minecraft_version", project.property("minecraft_version"))
     inputs.property("loader_version", project.property("loader_version"))
 
+    val name = "Polychrome It!"
+    val description = "Make your Minecraft more colorful.\nSupports full RGB range."
+    val nameAndDescriptionMap = mapOf(
+        "name" to name,
+        "description" to description
+    )
+
     filesMatching("fabric.mod.json") {
-        expand(mapOf(
+        expand(nameAndDescriptionMap + mapOf(
             "version" to project.version,
             "minecraft_version" to project.property("minecraft_version"),
-            "loader_version" to project.property("loader_version")
+            "loader_version" to project.property("loader_version"),
         ))
+    }
+    filesMatching("/assets/polychrome_it/lang/en_us.json") {
+        expand(nameAndDescriptionMap)
     }
 }
 

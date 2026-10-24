@@ -2,13 +2,14 @@
     "schemaVersion": 1,
     "id": "polychrome_it",
     "version": "${version}",
-    "name": "Polychrome It!",
-    "description": "Add a block that changes its color based on its position.",
+    "name": "${name}",
+    "description": "${description}",
     "authors": [
         "Neila"
     ],
     "contact": {
-        "sources": "https://github.com/neila-a/polychrome_it"
+        "sources": "https://github.com/neila-a/polychrome_it",
+        "issues": "https://github.com/neila-a/polychrome_it/issues"
     },
     "license": "GPL-3.0-or-later",
     "icon": "assets/polychrome_it/icon.png",
@@ -19,9 +20,6 @@
         ],
         "client": [
             "top.neila.polychrome_it.client.PolychromeItClient"
-        ],
-        "modmenu": [
-            "top.neila.polychrome_it.modmenu.PolychromeItModMenuIntegration"
         ],
         "fabric-datagen": [
             "top.neila.polychrome_it.datagen.PolychromeItDataGenerator"

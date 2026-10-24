@@ -1,4 +1,6 @@
 {
   "block.polychrome_it.simple_gradient_block": "Simple Gradient Block",
-  "block.polychrome_it.image_pixel_block": "Image Pixel Block"
+  "block.polychrome_it.image_pixel_block": "Image Pixel Block",
+  "modmenu.nameTranslation.polychrome_it": "${name}",
+  "modmenu.descriptionTranslation.polychrome_it": "${description}"
 }

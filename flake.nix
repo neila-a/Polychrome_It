@@ -9,7 +9,7 @@
         #flake-utils.url = "github:numtide/flake-utils";
         flake-utils.url = "https://proxy.gitwarp.top/https://github.com/numtide/flake-utils/archive/refs/heads/master.zip";
     };
-    description = "Add a block that changes its color based on its position.";
+    description = "Make your Minecraft more colorful.\nSupports full RGB range.";
     outputs =
         {
             self,
