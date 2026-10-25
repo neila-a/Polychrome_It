@@ -22,7 +22,7 @@ import kotlin.math.abs
 val black = ARGB.opaque(0x000000)
 const val MOD_ID = "polychrome_it"
 
-val imageFilename = "polychrome_it_image"
+const val imageFilename = "${MOD_ID}_image"
 val imagePath: Path =
     FabricLoader.getInstance().configDir.resolve(imageFilename)
 var readImage: BufferedImage? = getImage()
@@ -39,24 +39,21 @@ fun getImage() =
  */
 enum class PolychromeItBlock : Tinter {
     image_pixel_block {
-
         private val grassBlockTopAverageColor = 0x91
-        override fun tint(pos: BlockPos): Int {
-            val image = readImage ?: return black
-            val x = abs(pos.x) % image.width
-            val y = abs(pos.z) % image.height
+        override fun tint(pos: BlockPos) = readImage?.run {
+            val x = abs(pos.x) % width
+            val y = abs(pos.z) % height
             try {
-                val originalColor = image.getRGB(x, y)
-                return originalColor
-                return ARGB.color(
+                getRGB(x, y)
+                /*return ARGB.color(
                     ARGB.red(originalColor) * 255 / grassBlockTopAverageColor,
                     ARGB.green(originalColor) * 255 / grassBlockTopAverageColor,
                     ARGB.blue(originalColor) * 255 / grassBlockTopAverageColor
-                )
+                )*/
             } catch (e: ArrayIndexOutOfBoundsException) {
-                return black
+                black
             }
-        }
+        } ?: black
     },
     simple_gradient_block {
         /**
@@ -65,33 +62,33 @@ enum class PolychromeItBlock : Tinter {
          */
         private fun numberToRGBScale(number: Int) = abs(number) and 255
 
-        override fun tint(pos: BlockPos) =
-            ARGB.color(numberToRGBScale(pos.x), numberToRGBScale(pos.y), numberToRGBScale(pos.z))
+        override fun tint(pos: BlockPos) = with(pos) {
+            ARGB.color(numberToRGBScale(x), numberToRGBScale(y), numberToRGBScale(z))
+        }
     };
 
-    val registered: Block
-
-    init {
+    val registered = run {
         val identifier = Identifier.fromNamespaceAndPath(MOD_ID, name)
         val blockKey = ResourceKey.create(Registries.BLOCK, identifier)
 
-        registered = Registry.register(
+        Registry.register(
             BuiltInRegistries.BLOCK,
             blockKey,
 
             Block(BlockBehaviour.Properties.of().strength(4.0f).setId(blockKey))
-        )
+        ).apply {
+            val itemKey = ResourceKey.create(Registries.ITEM, identifier)
+            Registry.register(
+                BuiltInRegistries.ITEM,
+                itemKey,
+                BlockItem(this, Item.Properties().setId(itemKey).useBlockDescriptionPrefix())
+            ).run {
+                registerBlocks(Item.BY_BLOCK, this)
+            }
 
-        val itemKey = ResourceKey.create(Registries.ITEM, identifier)
-        val blockItem = Registry.register(
-            BuiltInRegistries.ITEM,
-            itemKey,
-            BlockItem(registered, Item.Properties().setId(itemKey).useBlockDescriptionPrefix())
-        )
-        blockItem.registerBlocks(Item.BY_BLOCK, blockItem)
-
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COLORED_BLOCKS).register {
-            it.accept(registered)
+            CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COLORED_BLOCKS).register {
+                it.accept(this)
+            }
         }
     }
 

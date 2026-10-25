@@ -7,8 +7,7 @@ import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhAp
  * Enable color override.
  */
 object DhApiBlockStateWrapperCreatedEventHandler : DhApiBlockStateWrapperCreatedEvent() {
-    override fun blockStateWrapperCreated(event: DhApiEventParam<EventParam>) {
-        val param = event.value
-        param.allowApiColorOverride = true
+    override fun blockStateWrapperCreated(event: DhApiEventParam<EventParam>) = with(event) {
+        value.allowApiColorOverride = true
     }
 }

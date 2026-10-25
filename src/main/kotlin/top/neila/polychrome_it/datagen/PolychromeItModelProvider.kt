@@ -29,13 +29,13 @@ class PolychromeItModelProvider(output: FabricPackOutput) : FabricModelProvider(
 
     override fun getName() = "PolychromeModelProvider"
 
-    override fun generateBlockStateModels(blockModelGenerators: BlockModelGenerators) {
+    override fun generateBlockStateModels(blockModelGenerators: BlockModelGenerators) = with(blockModelGenerators) {
         for (block in PolychromeItBlock.entries) {
-            val model = allWhiteTemplate.create(block.registered, TextureMapping(), blockModelGenerators.modelOutput)
-            blockModelGenerators.blockStateOutput.accept(
+            val model = allWhiteTemplate.create(block.registered, TextureMapping(), modelOutput)
+            blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(block.registered, BlockModelGenerators.plainVariant(model))
             )
-            blockModelGenerators.registerSimpleItemModel(block.registered, model)
+            registerSimpleItemModel(block.registered, model)
         }
     }
 

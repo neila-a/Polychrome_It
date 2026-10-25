@@ -11,17 +11,19 @@ import top.neila.polychrome_it.imagePath
 import top.neila.polychrome_it.main.handlers.DhApiBlockColorOverrideEventHandler
 import top.neila.polychrome_it.main.handlers.DhApiBlockStateWrapperCreatedEventHandler
 import top.neila.polychrome_it.readImage
+import java.nio.file.ClosedWatchServiceException
 import java.nio.file.FileSystems
 import java.nio.file.Path
 import java.nio.file.StandardWatchEventKinds
-import java.nio.file.WatchEvent
-import javax.imageio.ImageIO
+import java.nio.file.WatchService
 import kotlin.io.path.name
 
 class PolychromeIt : ModInitializer {
+    private val watcherService = FileSystems.getDefault().newWatchService()
+
     override fun onInitialize() {
         // 防止懒加载
-        PolychromeItBlock.simple_gradient_block
+        PolychromeItBlock.simple_gradient_block.registered
 
         DhApiEventRegister.on(
             DhApiBlockStateWrapperCreatedEvent::class.java,
@@ -32,24 +34,34 @@ class PolychromeIt : ModInitializer {
             DhApiBlockColorOverrideEventHandler
         )
 
-        Thread {
-            val watcher = FileSystems.getDefault().newWatchService() ?: return@Thread
-            var key = imagePath.parent.register(
-                watcher,
-                StandardWatchEventKinds.ENTRY_CREATE,
-                StandardWatchEventKinds.ENTRY_DELETE,
-                StandardWatchEventKinds.ENTRY_MODIFY
-            )
-            while (true) {
-                key = watcher.take()
-                for (event in key.pollEvents()) {
-                    val path = event.context()
-                    if (path is Path && path.fileName.name == imageFilename) {
-                        readImage = getImage()
+        watcherService?.run {
+            Thread {
+                var key = imagePath.parent.register(
+                    this,
+                    StandardWatchEventKinds.ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE,
+                    StandardWatchEventKinds.ENTRY_MODIFY
+                )
+                runCatching {
+                    while (true) {
+                        key = take()
+                        for (event in key.pollEvents()) {
+                            val path = event.context()
+                            if (path is Path && path.fileName.name == imageFilename)
+                                readImage = getImage()
+                        }
+                        if (!key.reset()) break
                     }
                 }
-                if (!key.reset()) return@Thread
+            }.apply {
+                isDaemon = true
+                name = "PolychromeIt image watcher"
+                start()
             }
-        }.start()
+
+            Runtime.getRuntime().addShutdownHook(
+                Thread { runCatching { close() } }
+            )
+        }
     }
 }
