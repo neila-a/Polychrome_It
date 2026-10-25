@@ -40,20 +40,31 @@ fun getImage() =
 enum class PolychromeItBlock : Tinter {
     image_pixel_block {
         private val grassBlockTopAverageColor = 0x91
-        override fun tint(pos: BlockPos) = readImage?.run {
-            val x = abs(pos.x) % width
-            val y = abs(pos.z) % height
-            try {
+
+        /**
+         * {@see <a href="https://zh.minecraft.wiki/w/无效纹理与模型">Minecraft Wiki</a>}
+         */
+        private val missingno = ARGB.opaque(0xf800f8)
+
+        override fun tint(pos: BlockPos) = try {
+            readImage?.run {
+                val x = abs(pos.x) % width
+                val y = abs(pos.z) % height
                 getRGB(x, y)
                 /*return ARGB.color(
                     ARGB.red(originalColor) * 255 / grassBlockTopAverageColor,
                     ARGB.green(originalColor) * 255 / grassBlockTopAverageColor,
                     ARGB.blue(originalColor) * 255 / grassBlockTopAverageColor
                 )*/
-            } catch (e: ArrayIndexOutOfBoundsException) {
+            } ?: throw Exception()
+        } catch (_: Exception) {
+            val x = abs(pos.x)
+            val xForUse = if (pos.z and 1 == 0) x else abs(x - 1)
+            if (xForUse and 1 == 0)
                 black
-            }
-        } ?: black
+            else
+                missingno
+        }
     },
     simple_gradient_block {
         /**
