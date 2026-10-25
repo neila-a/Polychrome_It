@@ -106,6 +106,7 @@ enum class PolychromeItBlock : Tinter {
     /**
      * 参考：{@link Block#toString())}
      */
-    val registeredName: String
-        get() = BuiltInRegistries.BLOCK.wrapAsHolder(registered).registeredName
+    val registeredName: String by lazy {
+        BuiltInRegistries.BLOCK.wrapAsHolder(registered).registeredName
+    }
 }
