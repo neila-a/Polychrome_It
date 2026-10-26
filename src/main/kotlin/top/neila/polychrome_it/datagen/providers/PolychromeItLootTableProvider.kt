@@ -1,4 +1,4 @@
-package top.neila.polychrome_it.datagen
+package top.neila.polychrome_it.datagen.providers
 
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider

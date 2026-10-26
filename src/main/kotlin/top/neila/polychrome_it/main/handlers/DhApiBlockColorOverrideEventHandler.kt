@@ -8,7 +8,6 @@ import net.minecraft.util.ARGB
 import top.neila.polychrome_it.PolychromeItBlock
 
 object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
-
     override fun onBlockColorOverridden(event: DhApiEventParam<EventParam>) = with(event) {
         val thisWrapper = value.blockStateWrapper
         for (block in PolychromeItBlock.entries) {
@@ -17,7 +16,7 @@ object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
                 value.levelWrapper
             )
             if (rightWrapper.serialString == thisWrapper.serialString) {
-                val color = PolychromeItBlock.image_pixel_block.tint(
+                val color = block.tint(
                     BlockPos(
                         value.blockPosX,
                         value.blockPosY,
