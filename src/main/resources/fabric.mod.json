@@ -21,20 +21,29 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "top.neila.polychrome_it.main.PolychromeIt"
+            {
+                "adapter": "kotlin",
+                "value": "top.neila.polychrome_it.main.PolychromeIt"
+            }
         ],
         "client": [
-            "top.neila.polychrome_it.client.PolychromeItClient"
+            {
+                "adapter": "kotlin",
+                "value": "top.neila.polychrome_it.client.PolychromeItClient"
+            }
         ],
         "fabric-datagen": [
-            "top.neila.polychrome_it.datagen.PolychromeItDataGenerator"
+            {
+                "adapter": "kotlin",
+                "value": "top.neila.polychrome_it.datagen.PolychromeItDataGenerator"
+            }
         ]
     },
     "depends": {
         "fabricloader": ">=0.15.0",
         "minecraft": "~26.3",
         "java": ">=25",
-        "fabric-language-kotlin": ">=1.14.2",
+        "fabric-language-kotlin": ">=1.14.2+kotlin.2.4.21",
         "fabric-rendering-v1": ">=27.1.0",
         "fabric-creative-tab-api-v1": ">=5.0.22"
     },

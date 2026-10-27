@@ -8,7 +8,7 @@ import top.neila.polychrome_it.PolychromeItBlock
 import top.neila.polychrome_it.main.handlers.*
 import top.neila.polychrome_it.watchImage
 
-class PolychromeIt : ModInitializer {
+object PolychromeIt : ModInitializer {
     override fun onInitialize() {
         // 防止懒加载
         PolychromeItBlock.simple_gradient_block.registered
