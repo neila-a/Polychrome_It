@@ -13,14 +13,19 @@ class PolychromeIt : ModInitializer {
         // 防止懒加载
         PolychromeItBlock.simple_gradient_block.registered
 
-        DhApiEventRegister.on(
-            DhApiBlockStateWrapperCreatedEvent::class.java,
-            DhApiBlockStateWrapperCreatedEventHandler
-        )
-        DhApiEventRegister.on(
-            DhApiBlockColorOverrideEvent::class.java,
-            DhApiBlockColorOverrideEventHandler
-        )
+        try {
+            DhApiEventRegister.on(
+                DhApiBlockStateWrapperCreatedEvent::class.java,
+                DhApiBlockStateWrapperCreatedEventHandler
+            )
+            DhApiEventRegister.on(
+                DhApiBlockColorOverrideEvent::class.java,
+                DhApiBlockColorOverrideEventHandler
+            )
+        } catch (_: ClassNotFoundException) {
+            // Distant Horizons didn't provide.
+            // It doesn't matter.
+        }
 
         watchImage()
     }

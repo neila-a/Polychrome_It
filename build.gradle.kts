@@ -40,7 +40,10 @@ dependencies {
 
     implementation("net.fabricmc:fabric-language-kotlin:1.14.2+kotlin.2.4.21")
 
-    implementation("maven.modrinth:DistantHorizonsApi:7.2.0")
+    // DH 为可选（suggests）依赖：编译期仅用 API，运行期由安装的 DH mod 提供类
+    compileOnly("maven.modrinth:DistantHorizonsApi:7.2.0")
+    // 开发/测试运行期提供 DH（仅 dev 用，不随发布产物强制要求）
+    runtimeOnly("maven.modrinth:distanthorizons:3.3.4-26.3")
 }
 
 kotlin {
