@@ -30,138 +30,23 @@ private val gameDir: Path get() = FabricLoader.getInstance().gameDir
 
 private val logger = LoggerFactory.getLogger(MOD_ID)
 
-// region GLSL 片段（对 Chocapic13/Bliss 的修改，原署名保留）
-// 识别 image_pixel_block 改用顶点色染色（见 glslLib）：把方块染色设为品红，着色器用
-// “红≈蓝、绿≈0”的比例判定（面遮蔽/AO 缩放下比例不变，比精确比对稳健）。
-// 之所以不用 mc_Entity.x：Iris 的 blockStateIds 只认 block.properties，而对 mod 方块
-// 解析返回 AIR（实测 mc_Entity.x = -1），无法用方块 id 区分。
+// region GLSL / 配置片段（对 Chocapic13/Bliss 的修改，原署名保留）
+// 这些片段原本作为字符串内联在 kotlin 文件中；现已拆分为 resources/polychrome_it/ 下的
+// 独立文件，运行时由类加载器读取，便于单独编辑/语法高亮。
+//   polychrome_it.glsl        -> 写入派生包 shaders/lib/polychrome_it.glsl（含 __SIZE_X__/__SIZE_Z__ 占位符）
+//   settings_injection.glsl   -> 注入 settings.glsl 的诊断开关
+//   call_injection.glsl       -> 注入 all_solid.fsh 的调用
+//   dh_call_injection.glsl    -> 注入 DH_solid.fsh 的调用
+//   properties_addition.properties -> 追加进 shaders.properties 的 sampler 注册
+//   en_us.lang / zh_cn.lang   -> 追加进派生包 lang 文件的显示名
 
-private fun glslLib(c: PolychromeItConfig): String {
-    // 诊断分支改由运行时光影设置 POLYCHROME_DEBUG 决定（编译期 #if 选择）。
-    //   detect   = 隔离识别（洋红/青/黄）
-    //   normal   = 把世界法线画成 RGB
-    //   specular = 把粗糙度画成灰度
-    // off（默认）不插入任何诊断分支，走真实 PBR。
-    return """
-// Polychrome It! — 世界空间 PBR 覆盖（对 Chocapic13/Bliss 的修改，原署名保留）
-uniform sampler2D polychromeDiffuse;
-uniform sampler2D polychromeNormal;
-uniform sampler2D polychromeSpecular;
-// 复用 Bliss 已定义的 worldToView（内部用 gbufferModelView），避免重声明/未声明冲突
-vec3 worldToView(vec3 worldPos);
-
-// 识别我们的方块 image_pixel_block：其染色（顶点色 color varying）被设为品红 (1,0,1)。
-// 面遮蔽 / AO 会等比例缩放 color，但 r≈b、g≈0 的比例关系保持不变，故用比例判定而非精确值，更稳健。
-void applyPolychromeIt(inout vec4 albedo, inout vec3 normal, inout float roughness, vec3 worldpos, vec4 blockColor) {
-    float cmax = max(max(blockColor.r, blockColor.g), blockColor.b);
-    bool isOurBlock = (cmax > 0.02)
-        && (blockColor.g < 0.25 * cmax)
-        && (abs(blockColor.r - blockColor.b) < 0.25 * cmax);
-#if POLYCHROME_DEBUG == POLYCHROME_DETECT
-    // 隔离诊断（detect）：洋红=命中我们的方块；青色=其它方块；黄色=color 近乎全黑
-    if (isOurBlock)       albedo.rgb = vec3(1.0, 0.0, 1.0);
-    else if (cmax < 0.02) albedo.rgb = vec3(1.0, 1.0, 0.0);
-    else                  albedo.rgb = vec3(0.0, 1.0, 1.0);
-    return;
-#elif POLYCHROME_DEBUG == POLYCHROME_NORMAL
-    // 通道可视化（normal）：把世界法线编码成 RGB（[-1,1] -> [0,1]），确认法线图被采样
-    if (isOurBlock) {
-        vec2 uv = worldpos.xz / vec2(${c.sizeX}f, ${c.sizeZ}f);
-        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
-        else {
-            vec3 wn = texture2D(polychromeNormal, uv).xyz * 2.0 - 1.0;
-            albedo.rgb = wn * 0.5 + 0.5;
-        }
-        return;
-    }
-#elif POLYCHROME_DEBUG == POLYCHROME_SPECULAR
-    // 通道可视化（specular）：把粗糙度输出成灰度，确认 specular 图被采样
-    if (isOurBlock) {
-        vec2 uv = worldpos.xz / vec2(${c.sizeX}f, ${c.sizeZ}f);
-        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
-        else albedo.rgb = vec3(texture2D(polychromeSpecular, uv).r);
-        return;
-    }
-#endif
-    if (!isOurBlock) return;
-    vec2 uv = worldpos.xz / vec2(${c.sizeX}f, ${c.sizeZ}f);
-    if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
-        // UV 越界：撤销品红识别染色（Bliss 在计算 Albedo 时已把顶点色乘进去），
-        // 还原为白方块 × 面遮蔽/AO（识别染色是 (1,0,1)，blockColor.r 即缩放系数）。
-        // 否则范围外的方块会露出大片品红，DH 的 LOD 顶点色也可能被误检放大。
-        albedo.rgb = vec3(blockColor.r);
-        return;
-    }
-
-    albedo.rgb = texture2D(polychromeDiffuse, uv).rgb;
-    vec3 worldNormal = texture2D(polychromeNormal, uv).xyz * 2.0 - 1.0;
-    // 退化保护：法线图平坦区若编码为 (0.5,0.5,0.5) 会得到 (0,0,0)，normalize 会出 NaN 让整块变黑
-    if (dot(worldNormal, worldNormal) < 1e-4) worldNormal = vec3(0.0, 1.0, 0.0);
-    vec3 viewNormal = worldToView(worldNormal);
-    if (dot(viewNormal, viewNormal) > 1e-4) {
-        normal = normalize(viewNormal); // 变换后仍退化则保留 Bliss 原法线，避免 NaN 传播
-    }
-    roughness = texture2D(polychromeSpecular, uv).r;
+/** 从打包进 mod 的资源目录（resources/polychrome_it/）读取注入片段，统一去除尾部换行。 */
+private object PatchResources {
+    fun load(name: String): String =
+        PatchResources::class.java.getResourceAsStream("/assets/polychrome_it/patches/$name")!!
+            .bufferedReader().use { it.readText() }
+            .trimEnd('\n')
 }
-""".trimIndent()
-}
-
-// 注入 settings.glsl 的诊断开关：Iris 自动把它识别为可切换的光影设置项（// [states] 注解）。
-// 各状态名对应一个整数宏，shader 里用 #if POLYCHROME_DEBUG == POLYCHROME_xxx 选择分支。
-private val settingsInjection = """
-// Polychrome It! — 诊断模式开关（由光影设置控制，编译期 #if 选择分支；无需改动 config）
-#define POLYCHROME_OFF 0
-#define POLYCHROME_DETECT 1
-#define POLYCHROME_NORMAL 2
-#define POLYCHROME_SPECULAR 3
-#define POLYCHROME_DEBUG POLYCHROME_OFF // [POLYCHROME_OFF POLYCHROME_DETECT POLYCHROME_NORMAL POLYCHROME_SPECULAR]
-""".trimIndent()
-
-// 光影设置界面里该选项的显示名与各个状态名（追加进派生包的 lang 文件）。
-private val langInjectionEnUs = """
-option.POLYCHROME_DEBUG = Polychrome It! Debug
-    value.POLYCHROME_DEBUG.POLYCHROME_OFF = Off
-    value.POLYCHROME_DEBUG.POLYCHROME_DETECT = Detect
-    value.POLYCHROME_DEBUG.POLYCHROME_NORMAL = Normal
-    value.POLYCHROME_DEBUG.POLYCHROME_SPECULAR = Specular
-""".trimIndent()
-
-private val langInjectionZhCn = """
-option.POLYCHROME_DEBUG = Polychrome It! 调试
-    value.POLYCHROME_DEBUG.POLYCHROME_OFF = 关闭
-    value.POLYCHROME_DEBUG.POLYCHROME_DETECT = 识别隔离
-    value.POLYCHROME_DEBUG.POLYCHROME_NORMAL = 法线可视化
-    value.POLYCHROME_DEBUG.POLYCHROME_SPECULAR = 粗糙度可视化
-""".trimIndent()
-
-private val propertiesAddition = """
-# Polychrome It! — 世界空间 PBR（对 Chocapic13/Bliss 的修改，原署名保留）
-# 用 customTexture.<sampler> 注册自定义纹理（直接按名绑给 terrain 程序，绕开 texture.<stage> 拦截器）。
-customTexture.polychromeDiffuse   = texture/world/diffuse.png
-customTexture.polychromeNormal   = texture/world/normal.png
-customTexture.polychromeSpecular = texture/world/specular.png
-""".trimIndent()
-
-private val callInjection = """
-    // Polychrome It! — 世界空间 PBR 覆盖（对 Chocapic13/Bliss 的修改，原署名保留）
-    {
-        float pcRoughness = gl_FragData[1].r;
-        applyPolychromeIt(Albedo, normal, pcRoughness, worldpos, color);
-        gl_FragData[1].r = pcRoughness;
-    }
-""".trimIndent()
-
-// DH LOD 地形程序（dimensions/DH_solid.fsh）的调用：顶点色叫 gcolor，世界坐标 = localPos + cameraPosition。
-// DH 下 normals 已在注入点之前编码进 data1，故这里只覆盖 albedo（解决 LOD 区块露品红的主因）；
-// roughness 在 DH 下无对应写入通道，pcRoughness 仅占位、不生效。
-private val dhCallInjection = """
-    // Polychrome It! — DH LOD 世界空间 PBR 覆盖（对 Chocapic13/Bliss 的修改，原署名保留）
-    {
-        vec3 pcWorldPos = localPos.xyz + cameraPosition;
-        float pcRoughness = 0.0;
-        applyPolychromeIt(Albedo, normals, pcRoughness, pcWorldPos, gcolor);
-    }
-""".trimIndent()
 // endregion
 
 /** 客户端初始化时调用：每次启动都（重新）生成派生光影包。 */
@@ -214,7 +99,7 @@ private fun injectShaders(derived: Path, cfg: PolychromeItConfig) {
         val idx = text.indexOf("iris.features.optional")
         if (idx >= 0) {
             val lineEnd = text.indexOf('\n', idx)
-            text = text.substring(0, lineEnd + 1) + propertiesAddition + "\n" + text.substring(lineEnd + 1)
+            text = text.substring(0, lineEnd + 1) + PatchResources.load("properties_addition.properties") + "\n" + text.substring(lineEnd + 1)
             // 把诊断开关放到 Misc/Debugging 设置页，紧挨 Bliss 自带 DEBUG_VIEW 之后
             text = text.replace("DEBUG_VIEW [the_end_orb]", "DEBUG_VIEW POLYCHROME_DEBUG [the_end_orb]")
             Files.writeString(props, text)
@@ -231,23 +116,28 @@ private fun injectShaders(derived: Path, cfg: PolychromeItConfig) {
         derived.resolve("shaders/dimensions/all_solid.fsh"),
         includeAnchor = "#include \"/lib/items.glsl\"",
         callBefore = "vec4 data1 = clamp( encode(viewToWorld(normal), PackLightmaps), 0.0, 1.0);",
-        callText = callInjection
+        callText = PatchResources.load("call_injection.glsl")
     )
     injectIntoFsh(
         derived.resolve("shaders/dimensions/DH_solid.fsh"),
         includeAnchor = "#include \"/lib/settings.glsl\"",
         callBefore = "gl_FragData[0] = vec4(encodeVec2(Albedo.x,data1.x),",
-        callText = dhCallInjection
+        callText = PatchResources.load("dh_call_injection.glsl")
     )
 
     val libFile = derived.resolve("shaders/lib/polychrome_it.glsl")
     Files.createDirectories(libFile.parent)
-    Files.writeString(libFile, glslLib(cfg))
+    Files.writeString(
+        libFile,
+        PatchResources.load("polychrome_it.glsl")
+            .replace("__SIZE_X__", "${cfg.sizeX}f")
+            .replace("__SIZE_Z__", "${cfg.sizeZ}f")
+    )
 
     // 诊断开关：注入 settings.glsl（让 Iris 在光影设置里显示可切换项），并补全 lang 显示名。
-    injectAfterLine(derived.resolve("shaders/lib/settings.glsl"), "#define DEBUG_VIEW debug_OFF", settingsInjection)
-    appendToFile(derived.resolve("shaders/lang/en_us.lang"), langInjectionEnUs)
-    appendToFile(derived.resolve("shaders/lang/zh_cn.lang"), langInjectionZhCn)
+    injectAfterLine(derived.resolve("shaders/lib/settings.glsl"), "#define DEBUG_VIEW debug_OFF", PatchResources.load("settings_injection.glsl"))
+    appendToFile(derived.resolve("shaders/lang/en_us.lang"), PatchResources.load("en_us.lang"))
+    appendToFile(derived.resolve("shaders/lang/zh_cn.lang"), PatchResources.load("zh_cn.lang"))
 }
 
 /** 在第一个包含 anchor 的行之后插入 text（整段）。 */
