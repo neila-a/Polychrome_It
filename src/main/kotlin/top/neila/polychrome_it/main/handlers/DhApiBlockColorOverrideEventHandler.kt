@@ -6,6 +6,7 @@ import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhAp
 import net.minecraft.core.BlockPos
 import net.minecraft.util.ARGB
 import top.neila.polychrome_it.PolychromeItBlock
+import top.neila.polychrome_it.magenta
 
 object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
     override fun onBlockColorOverridden(event: DhApiEventParam<EventParam>) = with(event) {
@@ -16,13 +17,13 @@ object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
                 value.levelWrapper
             )
             if (rightWrapper.serialString == thisWrapper.serialString) {
-                val color = block.tint(
+                val color = magenta/*block.tint(
                     BlockPos(
                         value.blockPosX,
                         value.blockPosY,
                         value.blockPosZ
                     )
-                )
+                )*/
                 value.setColor(
                     ARGB.red(color),
                     ARGB.green(color),

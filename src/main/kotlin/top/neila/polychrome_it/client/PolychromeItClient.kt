@@ -3,6 +3,7 @@ package top.neila.polychrome_it.client
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry
 import top.neila.polychrome_it.PolychromeItBlock
+import top.neila.polychrome_it.bliss.PolychromeItBlissPatcher
 
 /**
  * 客户端专用入口点。
@@ -18,5 +19,7 @@ object PolychromeItClient : ClientModInitializer {
                 block.registered
             )
         }
+        // 轻量版：生成 "Bliss + Polychrome It" 派生光影包（不修改 Bliss 原文件）
+        PolychromeItBlissPatcher.generateIfNeeded()
     }
 }
