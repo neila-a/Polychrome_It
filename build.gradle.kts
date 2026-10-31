@@ -44,6 +44,10 @@ dependencies {
     compileOnly("maven.modrinth:DistantHorizonsApi:7.2.0")
     // 开发/测试运行期提供 DH（仅 dev 用，不随发布产物强制要求）
     runtimeOnly("maven.modrinth:distanthorizons:3.3.4-26.3")
+
+    // Iris 为可选依赖：编译期用其 API 探测“是否启用了光影”，运行期由用户安装的 Iris 提供类。
+    // 未安装 Iris 时（见 IrisShaderDetector 的 try/catch）回落到真实染色，不会崩溃。
+    implementation("maven.modrinth:iris:1.11.7+26.3-fabric")
 }
 
 kotlin {
