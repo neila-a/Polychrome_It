@@ -3,7 +3,6 @@ package top.neila.polychrome_it.client
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry
 import top.neila.polychrome_it.PolychromeItBlock
-import top.neila.polychrome_it.bliss.generateIfNeeded
 
 /**
  * 客户端专用入口点。
