@@ -26,6 +26,7 @@
                 runtimeLibs = (pkgs.callPackage "${xmcl}/pkgs/xmcl/common.nix" {}).runtimeLibs;
                 allLibs = pkgs.electron.buildInputs ++ [
                     pkgs.stdenv.cc.cc.lib
+                    pkgs.glslang
                 ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux runtimeLibs;
             in
             {
