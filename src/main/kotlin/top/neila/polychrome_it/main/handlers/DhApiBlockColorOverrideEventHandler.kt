@@ -6,6 +6,7 @@ import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhAp
 import net.minecraft.core.BlockPos
 import net.minecraft.util.ARGB
 import top.neila.polychrome_it.PolychromeItBlock
+import top.neila.polychrome_it.client.IrisShaderDetector
 import top.neila.polychrome_it.magenta
 
 object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
@@ -17,13 +18,11 @@ object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
                 value.levelWrapper
             )
             if (rightWrapper.serialString == thisWrapper.serialString) {
-                val color = magenta/*block.tint(
-                    BlockPos(
-                        value.blockPosX,
-                        value.blockPosY,
-                        value.blockPosZ
-                    )
-                )*/
+                // 启用了光影（派生包）时才用洋红供着色器 PBR 识别；否则用真实染色，
+                // 避免未启用光影时 DH 远景 LOD 露出大片洋红。
+                val color = if (IrisShaderDetector.isShaderPackInUse()) magenta else block.tint(
+                    BlockPos(value.blockPosX, value.blockPosY, value.blockPosZ)
+                )
                 value.setColor(
                     ARGB.red(color),
                     ARGB.green(color),
