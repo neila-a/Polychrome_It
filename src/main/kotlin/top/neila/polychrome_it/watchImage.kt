@@ -1,6 +1,5 @@
 package top.neila.polychrome_it
 
-import net.fabricmc.loader.api.FabricLoader
 import java.awt.image.BufferedImage
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -9,13 +8,11 @@ import javax.imageio.ImageIO
 import kotlin.io.path.name
 
 private const val imageFilename = "${MOD_ID}_image"
-private val imagePath: Path =
-    FabricLoader.getInstance().configDir.resolve(imageFilename)
 
 @JvmName("getImageForInitialValueAndReset")
 private fun getImage() =
     try {
-        ImageIO.read(imagePath.toFile())
+        ImageIO.read(PolychromeItConfig.diffuseFile.toFile())
     } catch (e: Exception) {
         null
     }
@@ -25,7 +22,7 @@ var image: BufferedImage? = getImage()
 fun watchImage() =
     FileSystems.getDefault().newWatchService()?.run {
         Thread {
-            var key = imagePath.parent.register(
+            var key = PolychromeItConfig.dir.parent.register(
                 this,
                 StandardWatchEventKinds.ENTRY_CREATE,
                 StandardWatchEventKinds.ENTRY_DELETE,

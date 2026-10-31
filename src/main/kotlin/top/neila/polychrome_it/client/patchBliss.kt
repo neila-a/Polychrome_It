@@ -1,4 +1,4 @@
-package top.neila.polychrome_it.bliss
+package top.neila.polychrome_it.client
 
 /**
  * Polychrome It! 轻量版注入器。
@@ -6,25 +6,26 @@ package top.neila.polychrome_it.bliss
  * 不修改 Bliss 的任何文件：把 Bliss 复制成 "Bliss + Polychrome It" 派生光影包，
  * 在副本里注入世界空间 PBR 的 GLSL 与世界纹理。这是对 Chocapic13/Bliss 的修改，
  * 原始光影包保持字节不变、署名保留。做法参考 Euphoria Patches（派生包而非改原包）。
+ *
+ * 诊断模式：在 settings.glsl 注入
+ * POLYCHROME_DEBUG 开关，Iris 把它渲染成可切换的光影设置项；选定状态在着色器编译期
+ * 以 #define 形式注入，从而决定 applyPolychromeIt 里的 #if 分支，无需重建派生包。
  */
 
 import net.fabricmc.loader.api.FabricLoader
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
 import top.neila.polychrome_it.MOD_ID
-import top.neila.polychrome_it.config.PolychromeItConfig
+import top.neila.polychrome_it.PolychromeItConfig
 import java.awt.image.BufferedImage
-import java.io.IOException
 import java.nio.file.*
-import java.nio.file.attribute.BasicFileAttributes
 import javax.imageio.ImageIO
 import java.io.File
+import java.util.stream.Collectors
 import kotlin.io.path.exists
 import kotlin.io.path.name
 
 private const val DERIVED_NAME = "Bliss + Polychrome It"
-private const val MARKER = ".polychrome_it_marker"
-private const val PATCH_VERSION = 2 // 改注入逻辑时 +1，强制重生派生包（避免用到旧包）
 private val gameDir: Path get() = FabricLoader.getInstance().gameDir
 
 private val logger = LoggerFactory.getLogger(MOD_ID)
@@ -36,41 +37,11 @@ private val logger = LoggerFactory.getLogger(MOD_ID)
 // 解析返回 AIR（实测 mc_Entity.x = -1），无法用方块 id 区分。
 
 private fun glslLib(c: PolychromeItConfig): String {
-    // 诊断分支：off=真实 PBR（不插入）；detect=隔离识别；normal/specular=把对应通道画成颜色/灰度。
-    val diag = when (c.debug) {
-        "detect" -> """
-        // 隔离诊断（detect）：洋红=命中我们的方块；青色=其它方块；黄色=color 近乎全黑
-        if (isOurBlock)       albedo.rgb = vec3(1.0, 0.0, 1.0);
-        else if (cmax < 0.02) albedo.rgb = vec3(1.0, 1.0, 0.0);
-        else                  albedo.rgb = vec3(0.0, 1.0, 1.0);
-        return;
-"""
-
-        "normal" -> """
-        // 通道可视化（normal）：把世界法线编码成 RGB（[-1,1] -> [0,1]），确认法线图被采样
-        if (isOurBlock) {
-            vec2 uv = worldpos.xz / vec2(${c.sizeX}f, ${c.sizeZ}f);
-            if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
-            else {
-                vec3 wn = texture2D(polychromeNormal, uv).xyz * 2.0 - 1.0;
-                albedo.rgb = wn * 0.5 + 0.5;
-            }
-            return;
-        }
-"""
-
-        "specular" -> """
-        // 通道可视化（specular）：把粗糙度输出成灰度，确认 specular 图被采样
-        if (isOurBlock) {
-            vec2 uv = worldpos.xz / vec2(${c.sizeX}f, ${c.sizeZ}f);
-            if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
-            else albedo.rgb = vec3(texture2D(polychromeSpecular, uv).r);
-            return;
-        }
-"""
-
-        else -> "" // off：真实 PBR，不插入诊断分支
-    }
+    // 诊断分支改由运行时光影设置 POLYCHROME_DEBUG 决定（编译期 #if 选择）。
+    //   detect   = 隔离识别（洋红/青/黄）
+    //   normal   = 把世界法线画成 RGB
+    //   specular = 把粗糙度画成灰度
+    // off（默认）不插入任何诊断分支，走真实 PBR。
     return """
 // Polychrome It! — 世界空间 PBR 覆盖（对 Chocapic13/Bliss 的修改，原署名保留）
 uniform sampler2D polychromeDiffuse;
@@ -86,7 +57,32 @@ void applyPolychromeIt(inout vec4 albedo, inout vec3 normal, inout float roughne
     bool isOurBlock = (cmax > 0.02)
         && (blockColor.g < 0.25 * cmax)
         && (abs(blockColor.r - blockColor.b) < 0.25 * cmax);
-$diag
+#if POLYCHROME_DEBUG == POLYCHROME_DETECT
+    // 隔离诊断（detect）：洋红=命中我们的方块；青色=其它方块；黄色=color 近乎全黑
+    if (isOurBlock)       albedo.rgb = vec3(1.0, 0.0, 1.0);
+    else if (cmax < 0.02) albedo.rgb = vec3(1.0, 1.0, 0.0);
+    else                  albedo.rgb = vec3(0.0, 1.0, 1.0);
+    return;
+#elif POLYCHROME_DEBUG == POLYCHROME_NORMAL
+    // 通道可视化（normal）：把世界法线编码成 RGB（[-1,1] -> [0,1]），确认法线图被采样
+    if (isOurBlock) {
+        vec2 uv = worldpos.xz / vec2(${c.sizeX}f, ${c.sizeZ}f);
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
+        else {
+            vec3 wn = texture2D(polychromeNormal, uv).xyz * 2.0 - 1.0;
+            albedo.rgb = wn * 0.5 + 0.5;
+        }
+        return;
+    }
+#elif POLYCHROME_DEBUG == POLYCHROME_SPECULAR
+    // 通道可视化（specular）：把粗糙度输出成灰度，确认 specular 图被采样
+    if (isOurBlock) {
+        vec2 uv = worldpos.xz / vec2(${c.sizeX}f, ${c.sizeZ}f);
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
+        else albedo.rgb = vec3(texture2D(polychromeSpecular, uv).r);
+        return;
+    }
+#endif
     if (!isOurBlock) return;
     vec2 uv = worldpos.xz / vec2(${c.sizeX}f, ${c.sizeZ}f);
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
@@ -109,6 +105,34 @@ $diag
 }
 """.trimIndent()
 }
+
+// 注入 settings.glsl 的诊断开关：Iris 自动把它识别为可切换的光影设置项（// [states] 注解）。
+// 各状态名对应一个整数宏，shader 里用 #if POLYCHROME_DEBUG == POLYCHROME_xxx 选择分支。
+private val settingsInjection = """
+// Polychrome It! — 诊断模式开关（由光影设置控制，编译期 #if 选择分支；无需改动 config）
+#define POLYCHROME_OFF 0
+#define POLYCHROME_DETECT 1
+#define POLYCHROME_NORMAL 2
+#define POLYCHROME_SPECULAR 3
+#define POLYCHROME_DEBUG POLYCHROME_OFF // [POLYCHROME_OFF POLYCHROME_DETECT POLYCHROME_NORMAL POLYCHROME_SPECULAR]
+""".trimIndent()
+
+// 光影设置界面里该选项的显示名与各个状态名（追加进派生包的 lang 文件）。
+private val langInjectionEnUs = """
+option.POLYCHROME_DEBUG = Polychrome It! Debug
+    value.POLYCHROME_DEBUG.POLYCHROME_OFF = Off
+    value.POLYCHROME_DEBUG.POLYCHROME_DETECT = Detect
+    value.POLYCHROME_DEBUG.POLYCHROME_NORMAL = Normal
+    value.POLYCHROME_DEBUG.POLYCHROME_SPECULAR = Specular
+""".trimIndent()
+
+private val langInjectionZhCn = """
+option.POLYCHROME_DEBUG = Polychrome It! 调试
+    value.POLYCHROME_DEBUG.POLYCHROME_OFF = 关闭
+    value.POLYCHROME_DEBUG.POLYCHROME_DETECT = 识别隔离
+    value.POLYCHROME_DEBUG.POLYCHROME_NORMAL = 法线可视化
+    value.POLYCHROME_DEBUG.POLYCHROME_SPECULAR = 粗糙度可视化
+""".trimIndent()
 
 private val propertiesAddition = """
 # Polychrome It! — 世界空间 PBR（对 Chocapic13/Bliss 的修改，原署名保留）
@@ -140,7 +164,7 @@ private val dhCallInjection = """
 """.trimIndent()
 // endregion
 
-/** 客户端初始化时调用：若派生包缺失/过期则（重新）生成。 */
+/** 客户端初始化时调用：每次启动都（重新）生成派生光影包。 */
 fun generateIfNeeded() {
     val shaderpacks = gameDir.resolve("shaderpacks")
     if (!shaderpacks.exists()) {
@@ -154,10 +178,6 @@ fun generateIfNeeded() {
     }
     val derived = shaderpacks.resolve(DERIVED_NAME)
     val cfg = PolychromeItConfig.load()
-    if (derived.exists() && markerValid(derived, bliss, cfg)) {
-        logger.info("派生包已是最新，跳过生成：$DERIVED_NAME")
-        return
-    }
     generate(bliss, derived, cfg)
 }
 
@@ -165,11 +185,10 @@ private fun generate(bliss: Path, derived: Path, cfg: PolychromeItConfig) {
     logger.info("开始生成派生光影包：$DERIVED_NAME（基于 ${bliss.fileName}）")
     if (derived.exists()) FileUtils.deleteDirectory(derived.toFile())
     try {
-        copyPack(bliss, derived.toFile())
+        FileUtils.copyDirectory(bliss.toFile(), derived.toFile())
         injectShaders(derived, cfg)
         packWorldTextures(derived)
-        writeMarker(derived, bliss, cfg)
-        logger.info("派生包生成完成：$derived 。请在视频设置里选择 “$DERIVED_NAME”。")
+        logger.info("派生包生成完成：$derived 。请选择光影 “$DERIVED_NAME”，并在光影设置里切换 Polychrome It! 调试开关。")
     } catch (e: Exception) {
         logger.error("生成失败：${e.message}")
         e.printStackTrace()
@@ -178,41 +197,14 @@ private fun generate(bliss: Path, derived: Path, cfg: PolychromeItConfig) {
 
 private fun findBliss(shaderpacks: Path): Path? {
     val list = runCatching {
-        Files.list(shaderpacks).collect(java.util.stream.Collectors.toList())
+        Files.list(shaderpacks).collect(Collectors.toList())
     }.getOrNull() ?: return null
-    return list
-        .filter { it.name.contains("bliss", ignoreCase = true) }
-        .filter { it.fileName.toString() != DERIVED_NAME } // 排除我们自己的派生包（名字也含 "Bliss"）
-        .filter { Files.isDirectory(it) || isZip(it) } // 排除 .txt 等非光影包文件
-        .minByOrNull { if (Files.isDirectory(it)) 0 else 1 } // 优先目录而非 zip
-}
-
-/** 按文件头（PK\x03\x04）识别 zip，兼容 .zip / .zip.txt 等任意后缀。 */
-private fun isZip(path: Path): Boolean {
-    if (!Files.isRegularFile(path)) return false
-    return runCatching {
-        Files.newInputStream(path).use { ins ->
-            val head = ByteArray(4)
-            val n = ins.read(head)
-            n == 4 && head[0] == 0x50.toByte() && head[1] == 0x4B.toByte()
-                    && head[2] == 0x03.toByte() && head[3] == 0x04.toByte()
-        }
-    }.getOrDefault(false)
-}
-
-// region 文件复制
-private fun copyPack(src: Path, dst: File) {
-    when {
-        Files.isDirectory(src) -> FileUtils.copyDirectory(src.toFile(), dst)
-        isZip(src) ->
-            FileSystems.newFileSystem(src, null as ClassLoader?).use { fs ->
-                FileUtils.copyDirectory(fs.getPath("/").toFile(), dst)
-            }
-
-        else -> throw IllegalArgumentException("不支持的 Bliss 包格式（既不是目录也不是 zip）：$src")
+    return list.firstOrNull {
+        it.name.contains("bliss", ignoreCase = true) // 名字含 "Bliss"
+            && it.fileName.toString() != DERIVED_NAME // 排除我们自己的派生包（名字也含 "Bliss"）
+            && Files.isDirectory(it) // 只支持文件夹形式的 Bliss
     }
 }
-// endregion
 
 // region 着色器注入
 private fun injectShaders(derived: Path, cfg: PolychromeItConfig) {
@@ -223,6 +215,8 @@ private fun injectShaders(derived: Path, cfg: PolychromeItConfig) {
         if (idx >= 0) {
             val lineEnd = text.indexOf('\n', idx)
             text = text.substring(0, lineEnd + 1) + propertiesAddition + "\n" + text.substring(lineEnd + 1)
+            // 把诊断开关放到 Misc/Debugging 设置页，紧挨 Bliss 自带 DEBUG_VIEW 之后
+            text = text.replace("DEBUG_VIEW [the_end_orb]", "DEBUG_VIEW POLYCHROME_DEBUG [the_end_orb]")
             Files.writeString(props, text)
         } else {
             logger.warn("shaders.properties 未找到 iris.features.optional，跳过 sampler 注册。")
@@ -249,6 +243,39 @@ private fun injectShaders(derived: Path, cfg: PolychromeItConfig) {
     val libFile = derived.resolve("shaders/lib/polychrome_it.glsl")
     Files.createDirectories(libFile.parent)
     Files.writeString(libFile, glslLib(cfg))
+
+    // 诊断开关：注入 settings.glsl（让 Iris 在光影设置里显示可切换项），并补全 lang 显示名。
+    injectAfterLine(derived.resolve("shaders/lib/settings.glsl"), "#define DEBUG_VIEW debug_OFF", settingsInjection)
+    appendToFile(derived.resolve("shaders/lang/en_us.lang"), langInjectionEnUs)
+    appendToFile(derived.resolve("shaders/lang/zh_cn.lang"), langInjectionZhCn)
+}
+
+/** 在第一个包含 anchor 的行之后插入 text（整段）。 */
+private fun injectAfterLine(file: Path, anchor: String, text: String) {
+    if (!file.exists()) {
+        logger.warn("未找到 ${file.fileName}，跳过注入。")
+        return
+    }
+    val content = Files.readString(file)
+    val idx = content.indexOf(anchor)
+    if (idx < 0) {
+        logger.warn("${file.fileName} 未找到锚点 '$anchor'，跳过诊断开关注入。")
+        return
+    }
+    val lineEnd = content.indexOf('\n', idx)
+    val insertAt = if (lineEnd < 0) content.length else lineEnd + 1
+    Files.writeString(file, content.substring(0, insertAt) + text + "\n" + content.substring(insertAt))
+}
+
+/** 在文件末尾追加 text（派生包每次生成都会重建，无需去重）。 */
+private fun appendToFile(file: Path, text: String) {
+    if (!file.exists()) {
+        logger.warn("未找到 ${file.fileName}，跳过 lang 注入。")
+        return
+    }
+    val content = Files.readString(file)
+    val sep = if (content.endsWith("\n")) "" else "\n"
+    Files.writeString(file, content + sep + text + "\n")
 }
 
 private fun injectIntoFsh(fsh: Path, includeAnchor: String, callBefore: String, callText: String) {
@@ -278,12 +305,13 @@ private fun injectIntoFsh(fsh: Path, includeAnchor: String, callBefore: String, 
 private fun packWorldTextures(derived: Path) {
     val worldDir = derived.resolve("shaders/texture/world")
     Files.createDirectories(worldDir)
-    val cfg = PolychromeItConfig
-    val d = cfg.diffuseFile
-    val n = cfg.normalFile
-    val r = cfg.roughnessFile
+    val d = PolychromeItConfig.diffuseFile
+    val n = PolychromeItConfig.normalFile
+    val r = PolychromeItConfig.roughnessFile
     if (!d.exists() || !n.exists() || !r.exists()) {
-        logger.error("缺少世界纹理图（diffuse/normal/roughness.png），跳过纹理打包。请把 WM 导出的图片放到 ${cfg.dir}。")
+        logger.error(
+            "缺少世界纹理图（diffuse/normal/roughness.png），跳过纹理打包。请把 WM 导出的图片放到 ${PolychromeItConfig.dir}。"
+        )
         return
     }
     // diffuse / normal 直接复制（无损）
@@ -313,31 +341,3 @@ private fun packWorldTextures(derived: Path) {
 }
 // endregion
 
-// region 增量标记
-private fun markerContent(bliss: Path, cfg: PolychromeItConfig): String {
-    val lastMod = runCatching { Files.getLastModifiedTime(bliss).toMillis() }.getOrElse { 0L }
-    val imgHash = listOf(
-        PolychromeItConfig.diffuseFile,
-        PolychromeItConfig.normalFile,
-        PolychromeItConfig.roughnessFile,
-        PolychromeItConfig.heightFile,
-        PolychromeItConfig.configFile
-    )
-        .joinToString("|") { f ->
-            "${f.name}:${runCatching { Files.getLastModifiedTime(f).toMillis() }.getOrElse { -1L }}"
-        }
-    // 把 debug 开关与补丁版本纳入标记：切开关/改注入逻辑时强制重生派生包
-    return "${bliss.fileName}|$lastMod|$imgHash|${cfg.debug}|$PATCH_VERSION"
-}
-
-private fun markerValid(derived: Path, bliss: Path, cfg: PolychromeItConfig): Boolean {
-    val marker = derived.resolve(MARKER)
-    if (!marker.exists()) return false
-    val content = runCatching { Files.readString(marker) }.getOrNull() ?: return false
-    return content == markerContent(bliss, cfg)
-}
-
-private fun writeMarker(derived: Path, bliss: Path, cfg: PolychromeItConfig) {
-    Files.writeString(derived.resolve(MARKER), markerContent(bliss, cfg))
-}
-// endregion
