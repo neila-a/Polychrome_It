@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour
 import kotlin.math.abs
 
 val black = ARGB.black(0xFF)
+// 用于识别 image_pixel_block 的染色：品红 (R=255,G=0,B=255)。着色器用“红≈蓝、绿≈0”的比例判定。
+val magenta = ARGB.opaque(0xff00ff)
 
 const val MOD_ID = "polychrome_it"
 

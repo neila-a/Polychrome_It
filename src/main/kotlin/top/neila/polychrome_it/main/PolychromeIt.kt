@@ -7,6 +7,7 @@ import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockCo
 import top.neila.polychrome_it.PolychromeItBlock
 import top.neila.polychrome_it.main.handlers.*
 import top.neila.polychrome_it.watchImage
+import java.lang.NoClassDefFoundError
 
 object PolychromeIt : ModInitializer {
     override fun onInitialize() {
@@ -22,7 +23,7 @@ object PolychromeIt : ModInitializer {
                 DhApiBlockColorOverrideEvent::class.java,
                 DhApiBlockColorOverrideEventHandler
             )
-        } catch (_: ClassNotFoundException) {
+        } catch (_: NoClassDefFoundError) {
             // Distant Horizons didn't provide.
             // It doesn't matter.
         }
