@@ -40,10 +40,6 @@ data class PolychromeItConfig(
 
         val DEFAULT = PolychromeItConfig(2048, 2048, "off")
 
-        /** 原点固定为 (0, 0)。 */
-        const val ORIGIN_X = 0.0
-        const val ORIGIN_Z = 0.0
-
         fun load(): PolychromeItConfig {
             val (w, h) = diffuseSize()
             val debug = if (configFile.exists()) {

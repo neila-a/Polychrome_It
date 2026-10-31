@@ -48,6 +48,8 @@ dependencies {
     // Iris 为可选依赖：编译期用其 API 探测“是否启用了光影”，运行期由用户安装的 Iris 提供类。
     // 未安装 Iris 时（见 IrisShaderDetector 的 try/catch）回落到真实染色，不会崩溃。
     implementation("maven.modrinth:iris:1.11.7+26.3-fabric")
+
+    implementation("commons-io:commons-io:2.22.0")
 }
 
 kotlin {
