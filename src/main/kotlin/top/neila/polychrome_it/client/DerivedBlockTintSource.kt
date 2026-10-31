@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 import top.neila.polychrome_it.PolychromeItBlock
 import top.neila.polychrome_it.black
+import top.neila.polychrome_it.isShaderPackInUse
 import top.neila.polychrome_it.magenta
 
 /**
@@ -22,5 +23,5 @@ class DerivedBlockTintSource(private val block: PolychromeItBlock) : BlockTintSo
     override fun color(state: BlockState) = black
 
     override fun colorInWorld(state: BlockState, level: BlockAndTintGetter, pos: BlockPos) =
-        if (IrisShaderDetector.isShaderPackInUse()) magenta else block.tint(pos)
+        if (isShaderPackInUse()) magenta else block.tint(pos)
 }
