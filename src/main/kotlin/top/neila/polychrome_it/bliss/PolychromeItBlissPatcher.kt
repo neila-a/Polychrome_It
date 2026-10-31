@@ -46,7 +46,7 @@ object PolychromeItBlissPatcher {
             "normal" -> """
         // 通道可视化（normal）：把世界法线编码成 RGB（[-1,1] -> [0,1]），确认法线图被采样
         if (isOurBlock) {
-            vec2 uv = (worldpos.xz - vec2(${c.originX}f, ${c.originZ}f)) / vec2(${c.sizeX}f, ${c.sizeZ}f);
+            vec2 uv = (worldpos.xz - vec2(${PolychromeItConfig.ORIGIN_X}f, ${PolychromeItConfig.ORIGIN_Z}f)) / vec2(${c.sizeX}f, ${c.sizeZ}f);
             if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
             else {
                 vec3 wn = texture2D(polychromeNormal, uv).xyz * 2.0 - 1.0;
@@ -58,7 +58,7 @@ object PolychromeItBlissPatcher {
             "specular" -> """
         // 通道可视化（specular）：把粗糙度输出成灰度，确认 specular 图被采样
         if (isOurBlock) {
-            vec2 uv = (worldpos.xz - vec2(${c.originX}f, ${c.originZ}f)) / vec2(${c.sizeX}f, ${c.sizeZ}f);
+            vec2 uv = (worldpos.xz - vec2(${PolychromeItConfig.ORIGIN_X}f, ${PolychromeItConfig.ORIGIN_Z}f)) / vec2(${c.sizeX}f, ${c.sizeZ}f);
             if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
             else albedo.rgb = vec3(texture2D(polychromeSpecular, uv).r);
             return;
@@ -83,7 +83,7 @@ void applyPolychromeIt(inout vec4 albedo, inout vec3 normal, inout float roughne
         && (abs(blockColor.r - blockColor.b) < 0.25 * cmax);
 $diag
     if (!isOurBlock) return;
-    vec2 uv = (worldpos.xz - vec2(${c.originX}f, ${c.originZ}f)) / vec2(${c.sizeX}f, ${c.sizeZ}f);
+    vec2 uv = (worldpos.xz - vec2(${PolychromeItConfig.ORIGIN_X}f, ${PolychromeItConfig.ORIGIN_Z}f)) / vec2(${c.sizeX}f, ${c.sizeZ}f);
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
         // UV 越界：撤销品红识别染色（Bliss 在计算 Albedo 时已把顶点色乘进去），
         // 还原为白方块 × 面遮蔽/AO（识别染色是 (1,0,1)，blockColor.r 即缩放系数）。
