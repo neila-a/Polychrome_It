@@ -15,8 +15,7 @@ package top.neila.polychrome_it.client
 import net.fabricmc.loader.api.FabricLoader
 import org.apache.commons.io.FileUtils
 import org.slf4j.LoggerFactory
-import top.neila.polychrome_it.MOD_ID
-import top.neila.polychrome_it.PolychromeItConfig
+import top.neila.polychrome_it.*
 import java.awt.image.BufferedImage
 import java.nio.file.*
 import javax.imageio.ImageIO
@@ -62,16 +61,15 @@ fun generateIfNeeded() {
         return
     }
     val derived = shaderpacks.resolve(DERIVED_NAME)
-    val cfg = PolychromeItConfig.load()
-    generate(bliss, derived, cfg)
+    generate(bliss, derived)
 }
 
-private fun generate(bliss: Path, derived: Path, cfg: PolychromeItConfig) {
+private fun generate(bliss: Path, derived: Path) {
     logger.info("开始生成派生光影包：$DERIVED_NAME（基于 ${bliss.fileName}）")
     if (derived.exists()) FileUtils.deleteDirectory(derived.toFile())
     try {
         FileUtils.copyDirectory(bliss.toFile(), derived.toFile())
-        injectShaders(derived, cfg)
+        injectShaders(derived)
         packWorldTextures(derived)
         logger.info("派生包生成完成：$derived 。请选择光影 “$DERIVED_NAME”，并在光影设置里切换 Polychrome It! 调试开关。")
     } catch (e: Exception) {
@@ -92,7 +90,7 @@ private fun findBliss(shaderpacks: Path): Path? {
 }
 
 // region 着色器注入
-private fun injectShaders(derived: Path, cfg: PolychromeItConfig) {
+private fun injectShaders(derived: Path) {
     val props = derived.resolve("shaders/shaders.properties")
     if (props.exists()) {
         var text = Files.readString(props)
@@ -130,8 +128,8 @@ private fun injectShaders(derived: Path, cfg: PolychromeItConfig) {
     Files.writeString(
         libFile,
         PatchResources.load("polychrome_it.glsl")
-            .replace("__SIZE_X__", "${cfg.sizeX}f")
-            .replace("__SIZE_Z__", "${cfg.sizeZ}f")
+            .replace("__SIZE_X__", "${diffuseSize.first}f")
+            .replace("__SIZE_Z__", "${diffuseSize.second}f")
     )
 
     // 诊断开关：注入 settings.glsl（让 Iris 在光影设置里显示可切换项），并补全 lang 显示名。
@@ -195,21 +193,18 @@ private fun injectIntoFsh(fsh: Path, includeAnchor: String, callBefore: String, 
 private fun packWorldTextures(derived: Path) {
     val worldDir = derived.resolve("shaders/texture/world")
     Files.createDirectories(worldDir)
-    val d = PolychromeItConfig.diffuseFile
-    val n = PolychromeItConfig.normalFile
-    val r = PolychromeItConfig.roughnessFile
-    if (!d.exists() || !n.exists() || !r.exists()) {
+    if (!diffuseFile.exists() || !normalFile.exists() || !roughnessFile.exists()) {
         logger.error(
-            "缺少世界纹理图（diffuse/normal/roughness.png），跳过纹理打包。请把 WM 导出的图片放到 ${PolychromeItConfig.dir}。"
+            "缺少世界纹理图（diffuse/normal/roughness.png），跳过纹理打包。请把 WM 导出的图片放到 ${dir}。"
         )
         return
     }
     // diffuse / normal 直接复制（无损）
-    Files.copy(d, worldDir.resolve("diffuse.png"), StandardCopyOption.REPLACE_EXISTING)
-    Files.copy(n, worldDir.resolve("normal.png"), StandardCopyOption.REPLACE_EXISTING)
+    Files.copy(diffuseFile, worldDir.resolve("diffuse.png"), StandardCopyOption.REPLACE_EXISTING)
+    Files.copy(normalFile, worldDir.resolve("normal.png"), StandardCopyOption.REPLACE_EXISTING)
 
     // specular：R=粗糙度，G=255（无 AO 压暗），B=0
-    val rough = ImageIO.read(File(r.toString()))
+    val rough = ImageIO.read(File(roughnessFile.toString()))
     val spec = BufferedImage(rough.width, rough.height, BufferedImage.TYPE_INT_RGB)
     for (y in 0 until rough.height) {
         for (x in 0 until rough.width) {
