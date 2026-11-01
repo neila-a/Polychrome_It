@@ -1,4 +1,3 @@
-// Polychrome It! — 世界空间 PBR 覆盖（对 Chocapic13/Bliss 的修改，原署名保留）
 uniform sampler2D polychromeDiffuse;
 uniform sampler2D polychromeNormal;
 uniform sampler2D polychromeSpecular;
@@ -34,7 +33,7 @@ void applyPolychromeIt(inout vec4 albedo, inout vec3 normal, inout float roughne
     if (isOurBlock) {
         vec2 uv = worldpos.xz / vec2(__SIZE_X__, __SIZE_Z__);
         if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
-        else albedo.rgb = vec3(texture2D(polychromeSpecular, uv).r);
+        else albedo.rgb = texture2D(polychromeSpecular, uv).rgb;
         return;
     }
 #endif
