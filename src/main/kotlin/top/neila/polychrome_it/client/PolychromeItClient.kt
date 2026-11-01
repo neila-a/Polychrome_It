@@ -19,6 +19,6 @@ object PolychromeItClient : ClientModInitializer {
             )
         }
         // 轻量版：生成 "Bliss + Polychrome It" 派生光影包（不修改 Bliss 原文件）
-        generateIfNeeded()
+        generatePatchedShaderpack()
     }
 }

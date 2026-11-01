@@ -27,6 +27,7 @@
                 allLibs = pkgs.electron.buildInputs ++ [
                     pkgs.stdenv.cc.cc.lib
                     pkgs.glslang
+                    #pkgs.renderdoc
                 ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux runtimeLibs;
             in
             {
