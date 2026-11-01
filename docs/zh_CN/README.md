@@ -5,21 +5,41 @@
 让您的 Minecraft 更加多彩。  
 支持全 RGB 范围。
 
-## Mod 支持
-
-- *遥远的地平线*：已支持。
-- *Xaero 的地图*：尚未支持。
-- *旅行地图*：无需支持。颜色本来就可以被正确显示。
-
 ## 使用
 
 ### 非基于物理的渲染
 
-1. 在*WorldMachine*中导出*高度图*和*位图*。
-1. 在*WorldPainter*中导入*高度图*。
-    1. 用`polychrome_it:image_pixel_block`覆盖地面。
-1. 将*位图*放在`.minecraft/config/polychrome_it_image`。
+1. 在*WorldMachine*中导出高度图和位图。
+1. 在*WorldPainter*中导入高度图。
+    - 用`polychrome_it:image_pixel_block`覆盖地面。
+1. 将位图放在`.minecraft/config/polychrome_it/diffuse.png`。
+
+#### 模组支持
+
+- *遥远的地平线*：已支持。
+- *Xaero 的地图*：尚未支持。
+- *旅行地图*：支持。
 
 ### 基于物理的渲染
 
-尚未推出……
+1. 在*WorldMachine*中导出高度图和材料。
+1. 在*WorldPainter*中导入高度图。
+    - 用`polychrome_it:image_pixel_block`覆盖地面。
+1. 将材料放到`.minecraft/config/polychrome_it`：
+    - `roughness.png`
+    - `normal.png`
+    - `diffuse.png`
+    - 其他图片（如环境光遮蔽）暂未支持，也不被需要。
+1. 给游戏安装合适的光影包。  
+    光影包必须是文件夹格式。  
+    目前支持的光影包有：
+    - *Bliss*
+1. 进入游戏，选择带有` + Polychrome It!`的光影包。
+1. 在光影包设置中，必须启用资源包支持中的高光反射。
+1. 这一点不是必须的，但建议把太阳反射强度调到 2 以上。
+
+#### 模组支持
+
+- *遥远的地平线*：能显示，但支持不是很好。
+- *Xaero 的地图*：尚未支持。
+- *旅行地图*：尚未支持。
