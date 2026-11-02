@@ -173,15 +173,16 @@ enum class ShaderPackPatcher {
     protected fun packWorldTextures(derived: Path) {
         val worldDir = derived.resolve("shaders/texture/world")
         worldDir.toFile().mkdir()
-        if (!diffuseFile.exists() || !normalFile.exists() || !roughnessFile.exists()) {
+        if (!diffuseFile.exists() || !normalFile.exists() || !roughnessFile.exists() || !aoFile.exists()) {
             logger.error(
                 "缺少世界纹理图（diffuse/normal/roughness.png），跳过纹理打包。请把 WM 导出的图片放到 $dir。"
             )
             return
         }
-        // diffuse / normal 直接复制（无损）
+        // diffuse / normal / ao 直接复制（无损）
         diffuseFile.copyTo(worldDir.resolve("diffuse.png"), true)
         normalFile.copyTo(worldDir.resolve("normal.png"), true)
+        aoFile.copyTo(worldDir.resolve("ao.png"), true)
 
         // specular：R=粗糙度，G=255（无 AO 压暗），B=0
         val rough = ImageIO.read(roughnessFile.toFile())
@@ -199,7 +200,7 @@ enum class ShaderPackPatcher {
         ImageIO.write(spec, "png", File(worldDir.resolve("specular.png").toString()))
 
         val mcmeta = loadPatch("image.mcmeta")
-        for (name in listOf("diffuse", "normal", "specular"))
+        for (name in listOf("diffuse", "normal", "specular", "ao"))
             worldDir.resolve("$name.png.mcmeta").writeText(mcmeta)
         logger.info("世界纹理打包完成：$worldDir")
     }

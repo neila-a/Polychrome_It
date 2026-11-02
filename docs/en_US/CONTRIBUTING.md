@@ -1,6 +1,6 @@
 # Contribute to Polychrome It!
 
-[English](/docs/en_US/README.md) | 大陆简体中文
+English | [大陆简体中文](/docs/zh_CN/README.md)
 
 ## Enum Classes
 

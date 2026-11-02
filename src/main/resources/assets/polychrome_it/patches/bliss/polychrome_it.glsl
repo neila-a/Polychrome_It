@@ -1,6 +1,7 @@
 uniform sampler2D polychromeDiffuse;
 uniform sampler2D polychromeNormal;
 uniform sampler2D polychromeSpecular;
+uniform sampler2D polychromeAO;
 // 复用 Bliss 已定义的 worldToView（内部用 gbufferModelView），避免重声明/未声明冲突
 vec3 worldToView(vec3 worldPos);
 
@@ -36,6 +37,14 @@ void applyPolychromeIt(inout vec4 albedo, inout vec3 normal, inout float roughne
         else albedo.rgb = texture2D(polychromeSpecular, uv).rgb;
         return;
     }
+#elif POLYCHROME_DEBUG == POLYCHROME_AO
+    // 通道可视化（ao）：把 AO 图原值输出成灰度，确认 ao 图被采样、方向对齐且数值合理
+    if (isOurBlock) {
+        vec2 uv = worldpos.xz / vec2(__SIZE_X__, __SIZE_Z__);
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) albedo.rgb = vec3(0.0);
+        else albedo.rgb = vec3(texture2D(polychromeAO, uv).r);
+        return;
+    }
 #endif
     if (!isOurBlock) return;
     vec2 uv = worldpos.xz / vec2(__SIZE_X__, __SIZE_Z__);
@@ -48,6 +57,8 @@ void applyPolychromeIt(inout vec4 albedo, inout vec3 normal, inout float roughne
     }
 
     albedo.rgb = texture2D(polychromeDiffuse, uv).rgb;
+    // 环境光遮蔽：AO 图原值（白=无遮蔽，黑=全遮蔽）直接压暗反照率，与大多数烘焙 AO 做法一致。
+    albedo.rgb *= texture2D(polychromeAO, uv).r;
     vec3 worldNormal = texture2D(polychromeNormal, uv).xyz * 2.0 - 1.0;
     // 退化保护：法线图平坦区若编码为 (0.5,0.5,0.5) 会得到 (0,0,0)，normalize 会出 NaN 让整块变黑
     if (dot(worldNormal, worldNormal) < 1e-4) worldNormal = vec3(0.0, 1.0, 0.0);

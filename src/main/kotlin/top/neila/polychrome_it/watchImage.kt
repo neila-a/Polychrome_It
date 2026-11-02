@@ -14,6 +14,7 @@ val dir: Path = FabricLoader.getInstance().configDir.resolve("polychrome_it")
 val diffuseFile: Path = dir.resolve("diffuse.png")
 val normalFile: Path = dir.resolve("normal.png")
 val roughnessFile: Path = dir.resolve("roughness.png")
+val aoFile: Path = dir.resolve("ao.png")
 
 /** 从 diffuse.png 读取像素尺寸；图缺失或解码失败时回退到默认 2048。 */
 val diffuseSize =

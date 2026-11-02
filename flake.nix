@@ -15,7 +15,7 @@
             self,
             nixpkgs,
             flake-utils,
-            xmcl
+            xmcl,
         }:
         flake-utils.lib.eachDefaultSystem (
             system:
@@ -23,12 +23,17 @@
                 pkgs = import nixpkgs {
                     inherit system;
                 };
-                runtimeLibs = (pkgs.callPackage "${xmcl}/pkgs/xmcl/common.nix" {}).runtimeLibs;
-                allLibs = pkgs.electron.buildInputs ++ [
-                    pkgs.stdenv.cc.cc.lib
-                    pkgs.glslang
-                    #pkgs.renderdoc
-                ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux runtimeLibs;
+                runtimeLibs = (pkgs.callPackage "${xmcl}/pkgs/xmcl/common.nix" { }).runtimeLibs;
+                allLibs =
+                    pkgs.electron.buildInputs
+                    ++ pkgs.renderdoc.buildInputs
+                    ++ [
+                        pkgs.stdenv.cc.cc.lib
+                        pkgs.glslang
+                        pkgs.gradle-completion
+                        pkgs.renderdoc
+                    ]
+                    ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux runtimeLibs;
             in
             {
                 devShells.default = pkgs.mkShell {
