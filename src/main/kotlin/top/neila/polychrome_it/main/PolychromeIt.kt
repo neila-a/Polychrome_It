@@ -5,8 +5,8 @@ import net.fabricmc.api.ModInitializer
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockStateWrapperCreatedEvent
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockColorOverrideEvent
 import top.neila.polychrome_it.PolychromeItBlock
+import top.neila.polychrome_it.PolychromeItTexture
 import top.neila.polychrome_it.main.handlers.*
-import top.neila.polychrome_it.watchImage
 import java.lang.NoClassDefFoundError
 
 object PolychromeIt : ModInitializer {
@@ -28,6 +28,6 @@ object PolychromeIt : ModInitializer {
             // It doesn't matter.
         }
 
-        watchImage()
+        PolychromeItTexture.diffuse.watch()
     }
 }

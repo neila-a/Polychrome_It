@@ -35,7 +35,7 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
         val x = abs(x)
         val z = abs(z)
         try {
-            image!!.run {
+            PolychromeItTexture.diffuse.image.value!!.run {
                 val x = x % width
                 val y = z % height
                 getRGB(x, y)

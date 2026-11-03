@@ -30,7 +30,6 @@ import kotlin.io.path.*
 private const val DERIVED_SUFFIX = " + Polychrome It"
 
 private val gameDir: Path get() = FabricLoader.getInstance().gameDir
-private val logger = LoggerFactory.getLogger(MOD_ID)
 
 /**
  * 一个具体光影包的注入器（枚举项）。框架负责发现匹配的光影包、复制成派生包并调用 generate；
@@ -76,6 +75,7 @@ enum class ShaderPackPatcher {
 
             val libFile = derived.resolve("shaders/lib/polychrome_it.glsl")
             libFile.parent.toFile().mkdir()
+            val diffuseSize = PolychromeItTexture.diffuse.size.value
             libFile.writeText(
                 loadPatch("polychrome_it.glsl")
                     .replace("__SIZE_X__", "${diffuseSize.first}f")
@@ -111,7 +111,7 @@ enum class ShaderPackPatcher {
     }
 
     /** 从本注入器专属资源目录读取注入片段，统一去除尾部换行。 */
-    protected fun loadPatch(patchName: String) =
+    fun loadPatch(patchName: String) =
         ShaderPackPatcher::class.java.getResourceAsStream("/assets/polychrome_it/patches/$name/$patchName")!!
             .bufferedReader().use { it.readText() }
             .trimEnd('\n')
@@ -173,35 +173,13 @@ enum class ShaderPackPatcher {
     protected fun packWorldTextures(derived: Path) {
         val worldDir = derived.resolve("shaders/texture/world")
         worldDir.toFile().mkdir()
-        if (!diffuseFile.exists() || !normalFile.exists() || !roughnessFile.exists() || !aoFile.exists()) {
-            logger.error(
-                "缺少世界纹理图（diffuse/normal/roughness.png），跳过纹理打包。请把 WM 导出的图片放到 $dir。"
-            )
-            return
-        }
-        // diffuse / normal / ao 直接复制（无损）
-        diffuseFile.copyTo(worldDir.resolve("diffuse.png"), true)
-        normalFile.copyTo(worldDir.resolve("normal.png"), true)
-        aoFile.copyTo(worldDir.resolve("ao.png"), true)
-
-        // specular：R=粗糙度，G=255（无 AO 压暗），B=0
-        val rough = ImageIO.read(roughnessFile.toFile())
-        val spec = BufferedImage(rough.width, rough.height, BufferedImage.TYPE_INT_RGB)
-        for (y in 0 until rough.height) {
-            for (x in 0 until rough.width) {
-                val rgb = rough.getRGB(x, y)
-                val rr = (rgb shr 16) and 0xFF
-                val gg = (rgb shr 8) and 0xFF
-                val bb = rgb and 0xFF
-                val roughVal = if (rr == gg && gg == bb) rr else (rr + gg + bb) / 3
-                spec.setRGB(x, y, (roughVal shl 16) or (255 shl 8) or 0)
-            }
-        }
-        ImageIO.write(spec, "png", File(worldDir.resolve("specular.png").toString()))
 
         val mcmeta = loadPatch("image.mcmeta")
-        for (name in listOf("diffuse", "normal", "specular", "ao"))
-            worldDir.resolve("$name.png.mcmeta").writeText(mcmeta)
+        for (texture in PolychromeItTexture.entries) {
+            if (texture.exists) {
+                texture.write(worldDir, mcmeta)
+            }
+        }
         logger.info("世界纹理打包完成：$worldDir")
     }
 }
