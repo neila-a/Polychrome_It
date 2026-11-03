@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalPathApi::class)
+
 package top.neila.polychrome_it.client
 
 /**
@@ -44,10 +46,19 @@ enum class ShaderPackPatcher {
                 val idx = text.indexOf("iris.features.optional")
                 if (idx >= 0) {
                     val lineEnd = text.indexOf('\n', idx)
-                    text = text.substring(
-                        0,
-                        lineEnd + 1
-                    ) + loadPatch("properties_addition.properties") + "\n" + text.substring(lineEnd + 1)
+
+                    val startText = text.substring(lineEnd + 1)
+                    val endText = text.substring(0, lineEnd + 1)
+                    
+                    text = startText + "\n"
+                    for (texture in PolychromeItTexture.entries) {
+                        text += "customTexture.polychrome${
+                            texture.name.replaceFirstChar {
+                                it.uppercaseChar()
+                            }
+                        } = texture/world/${texture.imageFilename}\n"
+                    }
+                    text += "\n" + endText
                     // 把诊断开关放到 Misc/Debugging 设置页，紧挨 Bliss 自带 DEBUG_VIEW 之后
                     text = text.replace("DEBUG_VIEW [the_end_orb]", "DEBUG_VIEW POLYCHROME_DEBUG [the_end_orb]")
                     props.writeText(text)
@@ -103,6 +114,7 @@ enum class ShaderPackPatcher {
     fun generate(packDir: Path) {
         val name = packDir.fileName.toString() + DERIVED_SUFFIX
         val derived = packDir.parent.resolve(name)
+        if (derived.exists()) derived.deleteRecursively()
         logger.info("开始生成派生光影包：$name")
         packDir.toFile().copyRecursively(derived.toFile(), true)
         injectShaders(derived)
@@ -168,7 +180,7 @@ enum class ShaderPackPatcher {
     }
 
     /**
-     * 世界纹理打包（labPBR：diffuse / normal / specular.R=粗糙度）。
+     * 世界纹理打包（labPBR：diffuse / normal / roughness）。
      */
     protected fun packWorldTextures(derived: Path) {
         val worldDir = derived.resolve("shaders/texture/world")

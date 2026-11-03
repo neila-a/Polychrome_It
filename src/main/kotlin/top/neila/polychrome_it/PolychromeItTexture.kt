@@ -42,7 +42,7 @@ enum class PolychromeItTexture {
     ao;
 
     val imageFilename = "${name}.png"
-    val path: Path = dir.resolve(imageFilename)
+    val path: Path = dir.resolveThis()
 
     val exists
         get() = path.exists().also {
@@ -54,7 +54,7 @@ enum class PolychromeItTexture {
 
     protected fun Path.resolveThis(): Path = resolve(imageFilename)
 
-    open fun copy(worldDir: Path) = path.createSymbolicLinkPointingTo(worldDir.resolveThis())
+    open fun copy(worldDir: Path) = worldDir.resolveThis().createSymbolicLinkPointingTo(path)
     fun write(worldDir: Path, mcmeta: String) {
         worldDir.resolve("$name.png.mcmeta").writeText(mcmeta)
         copy(worldDir)
