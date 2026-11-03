@@ -20,25 +20,7 @@ val dir: Path = FabricLoader.getInstance().configDir.resolve(MOD_ID)
 enum class PolychromeItTexture {
     diffuse,
     normal,
-    roughness {
-        override fun copy(worldDir: Path): Path {
-            val path = worldDir.resolveThis()
-            val file = image.value ?: return path
-            val spec = BufferedImage(file.width, file.height, BufferedImage.TYPE_INT_RGB)
-            for (y in 0 until file.height) {
-                for (x in 0 until file.width) {
-                    val rgb = file.getRGB(x, y)
-                    val rr = (rgb shr 16) and 0xFF
-                    val gg = (rgb shr 8) and 0xFF
-                    val bb = rgb and 0xFF
-                    val roughVal = if (rr == gg && gg == bb) rr else (rr + gg + bb) / 3
-                    spec.setRGB(x, y, (roughVal shl 16) or (255 shl 8) or 0)
-                }
-            }
-            ImageIO.write(spec, "png", File(path.toString()))
-            return path
-        }
-    },
+    roughness,
     ao;
 
     val imageFilename = "${name}.png"
@@ -54,10 +36,9 @@ enum class PolychromeItTexture {
 
     protected fun Path.resolveThis(): Path = resolve(imageFilename)
 
-    open fun copy(worldDir: Path) = worldDir.resolveThis().createSymbolicLinkPointingTo(path)
-    fun write(worldDir: Path, mcmeta: String) {
-        worldDir.resolve("$name.png.mcmeta").writeText(mcmeta)
-        copy(worldDir)
+    fun write(worldDir: Path, mcmeta: String) = worldDir.apply {
+        resolve("$name.png.mcmeta").writeText(mcmeta)
+        resolveThis().createSymbolicLinkPointingTo(path)
     }
 
     private val defaultSize = 2048 to 2048
