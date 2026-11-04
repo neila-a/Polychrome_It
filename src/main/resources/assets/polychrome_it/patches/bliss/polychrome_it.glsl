@@ -5,13 +5,32 @@ uniform sampler2D polychromeAo;
 // 复用 Bliss 已定义的 worldToView（内部用 gbufferModelView），避免重声明/未声明冲突
 vec3 worldToView(vec3 worldPos);
 
-// 识别我们的方块 image_pixel_block：其染色（顶点色 color varying）被设为品红 (1,0,1)。
-// 面遮蔽 / AO 会等比例缩放 color，但 r≈b、g≈0 的比例关系保持不变，故用比例判定而非精确值，更稳健。
+// 本 mod 方块识别：
+//  - 全精度地形（all_solid 等）已通过 Bliss 现成的 flat varying float blockID（= mc_Entity.x，即本 mod 在
+//    block.properties 中为本方块指定的固定 ID）传入，直接比较该 ID 即可（ID 在生成派生包时以 #define 注入）。
+//  - DH 等无 blockID 的着色器：走 DhApiBlockColorOverrideEvent 回传的洋红作后备判定。
+bool polychromeIsMagenta(vec4 c) {
+    float cmax = max(max(c.r, c.g), c.b);
+    return (cmax > 0.02) && (c.g < 0.25 * cmax) && (abs(c.r - c.b) < 0.25 * cmax);
+}
+
+#ifdef POLYCHROME_HAS_BLOCKID
+// 地形着色器：用 blockID（注册表方块 ID）识别，并用洋红作后备
+bool polychromeIsOurBlock(vec4 blockColor) {
+    bool byId = abs(blockID - float(POLYCHROME_ID_IMAGE_PIXEL_BLOCK)) < 0.5
+             || abs(blockID - float(POLYCHROME_ID_SIMPLE_GRADIENT_BLOCK)) < 0.5;
+    return byId || polychromeIsMagenta(blockColor);
+}
+#else
+// DH 等无 blockID：仅用洋红后备判定
+bool polychromeIsOurBlock(vec4 blockColor) {
+    return polychromeIsMagenta(blockColor);
+}
+#endif
+
 void applyPolychromeIt(inout vec4 albedo, inout vec3 normal, inout float roughness, vec3 worldpos, vec4 blockColor) {
     float cmax = max(max(blockColor.r, blockColor.g), blockColor.b);
-    bool isOurBlock = (cmax > 0.02)
-        && (blockColor.g < 0.25 * cmax)
-        && (abs(blockColor.r - blockColor.b) < 0.25 * cmax);
+    bool isOurBlock = polychromeIsOurBlock(blockColor);
 #if POLYCHROME_DEBUG == POLYCHROME_DETECT
     // 隔离诊断（detect）：洋红=命中我们的方块；青色=其它方块；黄色=color 近乎全黑
     if (isOurBlock)       albedo.rgb = vec3(1.0, 0.0, 1.0);
@@ -49,10 +68,9 @@ void applyPolychromeIt(inout vec4 albedo, inout vec3 normal, inout float roughne
     if (!isOurBlock) return;
     vec2 uv = worldpos.xz / vec2(__SIZE_X__, __SIZE_Z__);
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
-        // UV 越界：撤销品红识别染色（Bliss 在计算 Albedo 时已把顶点色乘进去），
-        // 还原为白方块 × 面遮蔽/AO（识别染色是 (1,0,1)，blockColor.r 即缩放系数）。
-        // 否则范围外的方块会露出大片品红，DH 的 LOD 顶点色也可能被误检放大。
-        albedo.rgb = vec3(blockColor.r);
+        // UV 越界：还原为本方块真实染色。colorInWorld 已返回真实色，小地图也读真实色，
+        // 不再依赖洋红识别色。
+        albedo.rgb = blockColor.rgb;
         return;
     }
 

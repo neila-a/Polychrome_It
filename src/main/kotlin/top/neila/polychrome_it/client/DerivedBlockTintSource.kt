@@ -6,22 +6,19 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 import top.neila.polychrome_it.PolychromeItBlock
 import top.neila.polychrome_it.black
-import top.neila.polychrome_it.isShaderPackInUse
-import top.neila.polychrome_it.magenta
 
 /**
  * {@see PolychromeItClient}
  *
- * 把 image_pixel_block 的染色设为品红 (R=255,G=0,B=255)，供着色器里的世界空间 PBR 覆盖
- * 识别“这是我们的方块”。着色器用“红≈蓝、绿≈0”的比例判定，受面遮蔽/AO 缩放也不变。
+ * 始终返回 image_pixel_block 的真实染色（来自世界图片的像素颜色）。
  *
- * 洋红只是给着色器的“识别色”：只要启用了光影（本 mod 的派生包），着色器就会把洋红
- * 识别成“我们的方块”并做 PBR 覆盖。若未启用光影，洋红会原样显示成错误颜色，
- * 故此时回落到 PolychromeBlock.tint 的真实染色。
+ * 不再用洋红作为“识别色”：启用光影时，着色器通过 mc_Entity 携带的方块数字 ID
+ * 来识别本 mod 方块（见 all_solid.vsh 注入与 polychrome_it.glsl），
+ * 因此小地图（只读 RGB）自然显示真实色，不会再出现洋红。
  */
 class DerivedBlockTintSource(private val block: PolychromeItBlock) : BlockTintSource {
     override fun color(state: BlockState) = black
 
     override fun colorInWorld(state: BlockState, level: BlockAndTintGetter, pos: BlockPos) =
-        if (isShaderPackInUse()) magenta else block.tint(pos)
+        block.tint(pos)
 }
