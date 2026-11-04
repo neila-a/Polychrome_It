@@ -5,6 +5,12 @@ English | [大陆简体中文](/docs/zh_CN/README.md)
 Make your Minecraft more colorful.  
 Supports full RGB range.
 
+## Mod Support
+
+- *Distant Horizons*: Supported.
+- *Xaero's Map*: Supported.
+- *JourneyMap*: Supported.
+
 ## Usage
 
 ### Non-Physically Based Rendering
@@ -13,12 +19,6 @@ Supports full RGB range.
 1. Import the heightmap in *WorldPainter*.
     - Cover the ground with `polychrome_it:image_pixel_block`.
 1. Place the bitmap in `.minecraft/config/polychrome_it/diffuse.png`.
-
-#### Mod Support
-
-- *Distant Horizons*: Supported.
-- *Xaero's Map*: Not supported yet.
-- *JourneyMap*: Supported.
 
 ### Physically Based Rendering
 
@@ -37,9 +37,3 @@ Supports full RGB range.
 1. Launch the game and select the shaderpack with ` + Polychrome It!`.
 1. In the shaderpack settings, make sure to enable Specular Reflections in Resource Pack Support.
 1. Not required, but it's recommended to set the Sun Reflection Multiplier above 2.
-
-#### Mod Support
-
-- *Distant Horizons*: Can display, but support isn't great.
-- *Xaero's Map*: Not supported yet.
-- *JourneyMap*: Not supported yet.

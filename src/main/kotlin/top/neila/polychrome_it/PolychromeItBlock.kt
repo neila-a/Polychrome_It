@@ -12,7 +12,9 @@ import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.CreativeModeTabs
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockBehaviour
+import net.minecraft.world.level.material.MapColor
 import kotlin.math.abs
 
 val black = ARGB.black(0xFF)
@@ -66,7 +68,12 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
         Registry.register(
             BuiltInRegistries.BLOCK,
             blockKey,
-            Block(BlockBehaviour.Properties.of().strength(4.0f).setId(blockKey))
+            Block(
+                // 必须设置 mapColor
+                // 否则 Xaero 地图无法正确显示颜色
+                // 尽管我们并不需要 mapColor 来提供颜色
+                Blocks.STONE.properties()
+            )
         ).apply {
             val itemKey = ResourceKey.create(Registries.ITEM, identifier)
             Registry.register(
