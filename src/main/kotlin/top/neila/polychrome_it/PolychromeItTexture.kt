@@ -41,8 +41,6 @@ enum class PolychromeItTexture {
         resolveThis().createSymbolicLinkPointingTo(path)
     }
 
-    private val defaultSize = 2048 to 2048
-
     var size = Refreshable {
         runCatching {
             ImageIO.read(File(path.toString()))?.run {
@@ -90,4 +88,8 @@ enum class PolychromeItTexture {
                 Thread { runCatching { close() } }
             )
         }
+
+    companion object {
+        private val defaultSize = 2048 to 2048
+    }
 }

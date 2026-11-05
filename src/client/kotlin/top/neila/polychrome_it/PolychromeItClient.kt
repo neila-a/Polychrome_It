@@ -2,6 +2,7 @@ package top.neila.polychrome_it
 
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry
+import top.neila.polychrome_it.shaderpackpatcher.generatePatchedShaderpack
 
 /**
  * 客户端专用入口点。

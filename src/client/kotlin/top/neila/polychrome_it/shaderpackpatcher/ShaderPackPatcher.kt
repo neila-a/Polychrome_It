@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalPathApi::class)
 
-package top.neila.polychrome_it
+package top.neila.polychrome_it.shaderpackpatcher
 
 /**
  * 派生光影包注入框架（枚举实现）。
@@ -20,13 +20,11 @@ package top.neila.polychrome_it
  */
 
 import net.fabricmc.loader.api.FabricLoader
+import top.neila.polychrome_it.PolychromeItBlock
+import top.neila.polychrome_it.PolychromeItTexture
+import top.neila.polychrome_it.logger
 import java.nio.file.Path
 import kotlin.io.path.*
-
-/** 派生包名统一后缀。所有注入器产生的派生包都以此结尾，便于框架识别并跳过自家的派生包。 */
-private const val DERIVED_SUFFIX = " + Polychrome It"
-
-private val gameDir: Path get() = FabricLoader.getInstance().gameDir
 
 /**
  * 一个具体光影包的注入器（枚举项）。框架负责发现匹配的光影包、复制成派生包并调用 generate；
@@ -139,107 +137,11 @@ enum class ShaderPackPatcher {
             .bufferedReader().use { it.readText() }
             .trimEnd('\n')
 
-    /** 在位置 at 处插入一整段 text（其后补一个换行）。 */
-    private fun String.insertString(at: Int, text: String) =
-        substring(0, at) + text + "\n" + substring(at)
-
-    /** 在第一个包含 anchor 的行之后插入 text（整段）。 */
-    protected fun injectAfterLine(file: Path, anchor: String, text: String) {
-        if (!file.exists()) {
-            logger.warn("未找到 ${file.fileName}，跳过注入。")
-            return
-        }
-        val content = file.readText()
-        val idx = content.indexOf(anchor)
-        if (idx < 0) {
-            logger.warn("${file.fileName} 未找到锚点 '$anchor'，跳过注入。")
-            return
-        }
-        val lineEnd = content.indexOf('\n', idx)
-        val insertAt = if (lineEnd < 0) content.length else lineEnd + 1
-        file.writeText(content.insertString(insertAt, text))
-    }
-
-    /** 在 .fsh 里注入 include 与本 mod 的调用片段。preInclude 会在 include 之前写入（用于定义开关宏）。 */
-    protected fun injectIntoFsh(
-        fsh: Path,
-        includeAnchor: String,
-        callBefore: String,
-        callText: String,
-        preInclude: String = ""
-    ) {
-        if (!fsh.exists()) {
-            logger.warn("未找到 ${fsh.fileName}，跳过 GLSL 注入。")
-            return
-        }
-        var text = fsh.readText()
-        if (text.contains(includeAnchor)) {
-            val inc = buildString {
-                append(includeAnchor).appendLine()
-                if (preInclude.isNotEmpty()) appendLine(preInclude)
-                append("#include \"/lib/polychrome_it.glsl\"")
-            }
-            text = text.replaceFirst(includeAnchor, inc)
-        } else {
-            logger.warn("${fsh.fileName} 未找到 include 锚点，跳过 include 注入。")
-            return
-        }
-        val k = text.indexOf(callBefore)
-        if (k >= 0) {
-            text = text.insertString(k, callText)
-        } else {
-            logger.warn("${fsh.fileName} 未找到调用锚点，跳过调用注入。")
-            return
-        }
-        fsh.writeText(text)
-    }
 
     /** 追加 en_us / zh_cn 显示名到派生包的 lang 文件（各光影包通用布局）。 */
     protected fun patchLang(derived: Path) {
         for (lang in listOf("en_us", "zh_cn")) {
             derived.resolve("shaders/lang/$lang.lang").toFile().appendText("\n" + loadPatch("$lang.lang"))
-        }
-    }
-
-    /**
-     * 往派生包的 shaders/block.properties 追加本 mod 方块的固定 ID。
-     *
-     * Iris 在加载光影时会解析 block.properties，把其中为方块指定的整数 ID 经
-     * BlockMaterialMapping / MixinChunkMeshBuildTask 写入 mc_Entity.x，
-     * 因此着色器里读出 blockID（= mc_Entity.x）就等于这里写入的 ID。
-     * 用它取代注册表数字 ID，可避免与 Iris 内部 ID 体系不一致导致识别失败。
-     *
-     * 必须在派生包里 block.properties 已就位（复制自原包）之后调用。返回“枚举名大写 -> 分配到的 ID”，
-     * 供生成 #define 使用。
-     */
-    private class AppendBlockPropertyIds(derived: Path) : LinkedHashMap<String, Int>() {
-        init {
-            val bp = derived.resolve("shaders/block.properties")
-            if (!bp.exists()) {
-                logger.warn("未找到 block.properties，跳过方块 ID 映射（世界内方块将无法被识别）。")
-            } else {
-                // 先读出现有最大 ID，再追加写入（保留原文件编码，避免破坏 Iris 的 ISO_8859_1 读取）。
-                var maxId = -1
-                val idRegex = Regex("""^block\.(\d+)\s*=""")
-                for (line in bp.readLines()) {
-                    val m = idRegex.find(line)
-                    if (m != null) {
-                        val id = m.groupValues[1].toIntOrNull()
-                        if (id != null && id > maxId) maxId = id
-                    }
-                }
-                var nextId = maxId + 1
-                val sb = StringBuilder()
-                for (block in PolychromeItBlock.entries) {
-                    val key = block.registeredName
-                    sb.append("\nblock.$nextId=$key")
-                    this[block.name.uppercase()] = nextId
-                    nextId++
-                }
-                sb.append('\n')
-                bp.appendText(sb.toString())
-                logger.info("已在 block.properties 注册本 mod 方块 ID：$this")
-            }
         }
     }
 
@@ -257,36 +159,5 @@ enum class ShaderPackPatcher {
             }
         }
         logger.info("世界纹理打包完成：$worldDir")
-    }
-}
-
-/**
- * 客户端初始化时调用：为 shaderpacks/ 下每个受支持的光影包生成派生包。
- * 派生包（名字含后缀）会被跳过，避免重复处理自家产物。
- */
-fun generatePatchedShaderpack() {
-    val shaderpacks = gameDir.resolve("shaderpacks")
-    if (!shaderpacks.exists()) {
-        logger.warn("未找到 shaderpacks/ 目录，跳过派生包生成。")
-        return
-    }
-    val entries = shaderpacks.listDirectoryEntries()
-        .filter { !it.fileName.toString().contains(DERIVED_SUFFIX) }
-    var handled = 0
-    for (pack in entries) {
-        val patcher = ShaderPackPatcher.entries.firstOrNull { it.matches(pack) } ?: continue
-        try {
-            patcher.generate(pack)
-            handled++
-        } catch (e: Exception) {
-            logger.error("为 ${pack.fileName} 生成派生包失败：${e.message}")
-            e.printStackTrace()
-        }
-    }
-    if (handled == 0) {
-        logger.warn(
-            "未在 shaderpacks/ 中找到任何支持的光影包（支持：${ShaderPackPatcher.entries.map { it.name }}）。" +
-                    "请先放入对应光影包后重启游戏。"
-        )
     }
 }
