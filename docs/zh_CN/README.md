@@ -20,8 +20,10 @@
     - 用`polychrome_it:image_pixel_block`覆盖地面。
 1. 将位图放在`.minecraft/config/polychrome_it/diffuse.png`。
 
-
 ### 基于物理的渲染
+
+需要*Iris*。  
+*Optifine*不起作用。
 
 1. 在*WorldMachine*中导出高度图和材料。
 1. 在*WorldPainter*中导入高度图。

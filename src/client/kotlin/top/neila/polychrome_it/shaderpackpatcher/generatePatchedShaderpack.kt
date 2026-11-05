@@ -8,14 +8,12 @@ import top.neila.polychrome_it.logger
 /** 派生包名统一后缀。所有注入器产生的派生包都以此结尾，便于框架识别并跳过自家的派生包。 */
 const val DERIVED_SUFFIX = " + Polychrome It"
 
-val gameDir: Path = FabricLoader.getInstance().gameDir
-
 /**
  * 客户端初始化时调用：为 shaderpacks/ 下每个受支持的光影包生成派生包。
  * 派生包（名字含后缀）会被跳过，避免重复处理自家产物。
  */
 fun generatePatchedShaderpack() {
-    val shaderpacks = gameDir.resolve("shaderpacks")
+    val shaderpacks = FabricLoader.getInstance().gameDir.resolve("shaderpacks")
     if (!shaderpacks.exists()) {
         logger.warn("未找到 shaderpacks/ 目录，跳过派生包生成。")
         return

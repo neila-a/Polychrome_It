@@ -22,6 +22,9 @@ Supports full RGB range.
 
 ### Physically Based Rendering
 
+*Iris* is required.  
+*Optifine* doesn't work.
+
 1. Export heightmap and material from *WorldMachine*.
 1. Import the heightmap in *WorldPainter*.
     - Cover the ground with `polychrome_it:image_pixel_block`.

@@ -1,4 +1,4 @@
-package top.neila.polychrome_it
+package top.neila.polychrome_it.handlers
 
 import net.irisshaders.iris.api.v0.IrisApi
 import java.lang.NoClassDefFoundError

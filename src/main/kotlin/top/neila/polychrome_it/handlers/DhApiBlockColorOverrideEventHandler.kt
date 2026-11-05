@@ -6,8 +6,9 @@ import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhAp
 import net.minecraft.core.BlockPos
 import net.minecraft.util.ARGB
 import top.neila.polychrome_it.PolychromeItBlock
-import top.neila.polychrome_it.isShaderPackInUse
-import top.neila.polychrome_it.magenta
+
+// 用于识别 image_pixel_block 的染色：品红 (R=255,G=0,B=255)。着色器用“红≈蓝、绿≈0”的比例判定。
+private val magenta = ARGB.opaque(0xff00ff)
 
 object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
     override fun onBlockColorOverridden(event: DhApiEventParam<EventParam>) = with(event) {
