@@ -1,12 +1,11 @@
-package top.neila.polychrome_it.main
+package top.neila.polychrome_it
 
 import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister
 import net.fabricmc.api.ModInitializer
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockStateWrapperCreatedEvent
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockColorOverrideEvent
-import top.neila.polychrome_it.PolychromeItBlock
-import top.neila.polychrome_it.PolychromeItTexture
-import top.neila.polychrome_it.main.handlers.*
+import top.neila.polychrome_it.handlers.DhApiBlockColorOverrideEventHandler
+import top.neila.polychrome_it.handlers.DhApiBlockStateWrapperCreatedEventHandler
 import java.lang.NoClassDefFoundError
 
 object PolychromeIt : ModInitializer {

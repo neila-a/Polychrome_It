@@ -6,9 +6,9 @@ import top.neila.polychrome_it.datagen.providers.*
 
 object PolychromeItDataGenerator : DataGeneratorEntrypoint {
     override fun onInitializeDataGenerator(fabricDataGenerator: FabricDataGenerator) =
-        with(fabricDataGenerator.createPack()) {
-            addProvider(::PolychromeItLootTableProvider)
+        fabricDataGenerator.createPack().run {
             addProvider(::PolychromeItModelProvider)
+            addProvider(::PolychromeItLootTableProvider)
             Unit
         }
 }

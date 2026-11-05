@@ -27,8 +27,6 @@ class PolychromeItModelProvider(output: FabricPackOutput) : FabricModelProvider(
         Optional.empty()
     )
 
-    override fun getName() = "PolychromeModelProvider"
-
     override fun generateBlockStateModels(blockModelGenerators: BlockModelGenerators) = with(blockModelGenerators) {
         for (block in PolychromeItBlock.entries) {
             val model = allWhiteTemplate.create(block.registered, TextureMapping(), modelOutput)

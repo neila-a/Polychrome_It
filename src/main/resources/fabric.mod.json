@@ -23,13 +23,13 @@
         "main": [
             {
                 "adapter": "kotlin",
-                "value": "top.neila.polychrome_it.main.PolychromeIt"
+                "value": "top.neila.polychrome_it.PolychromeIt"
             }
         ],
         "client": [
             {
                 "adapter": "kotlin",
-                "value": "top.neila.polychrome_it.client.PolychromeItClient"
+                "value": "top.neila.polychrome_it.PolychromeItClient"
             }
         ],
         "fabric-datagen": [

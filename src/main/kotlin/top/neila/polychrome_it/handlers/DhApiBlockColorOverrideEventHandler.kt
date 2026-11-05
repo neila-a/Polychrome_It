@@ -1,4 +1,4 @@
-package top.neila.polychrome_it.main.handlers
+package top.neila.polychrome_it.handlers
 
 import com.seibel.distanthorizons.api.DhApi
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockColorOverrideEvent

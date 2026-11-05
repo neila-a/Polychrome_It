@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalPathApi::class)
 
-package top.neila.polychrome_it.client
+package top.neila.polychrome_it
 
 /**
  * 派生光影包注入框架（枚举实现）。
@@ -20,7 +20,6 @@ package top.neila.polychrome_it.client
  */
 
 import net.fabricmc.loader.api.FabricLoader
-import top.neila.polychrome_it.*
 import java.nio.file.Path
 import kotlin.io.path.*
 
@@ -120,7 +119,7 @@ enum class ShaderPackPatcher {
 
     /** 判定给定 shaderpack 目录是否匹配此注入器。 */
     fun matches(packDir: Path) = packDir.isDirectory() && packDir.fileName.toString()
-        .let { n -> n.contains(name, ignoreCase = true) && !n.contains(top.neila.polychrome_it.client.DERIVED_SUFFIX) }
+        .let { n -> n.contains(name, ignoreCase = true) && !n.contains(DERIVED_SUFFIX) }
 
     /** 由框架调用：复制原包并跑完整注入流程。子类无需重写。 */
     fun generate(packDir: Path) {

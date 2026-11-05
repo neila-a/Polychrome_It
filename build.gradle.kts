@@ -9,6 +9,17 @@ plugins {
 version = project.property("mod_version").toString()
 group = project.property("maven_group").toString()
 
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		register("polychrome_it") {
+			sourceSet(sourceSets.main.get())
+			sourceSet(sourceSets.getByName("client"))
+		}
+	}
+}
+
 base {
     archivesName.set(project.property("archives_base_name").toString())
 }
@@ -48,6 +59,9 @@ dependencies {
     // Iris 为可选依赖：编译期用其 API 探测“是否启用了光影”，运行期由用户安装的 Iris 提供类。
     // 未安装 Iris 时（见 IrisShaderDetector 的 try/catch）回落到真实染色，不会崩溃。
     implementation("maven.modrinth:iris:1.11.7+26.3-fabric")
+
+    // for datagen
+    runtimeOnly("maven.modrinth:sodium:mc26.3-0.9.3-beta.1-fabric")
 }
 
 kotlin {

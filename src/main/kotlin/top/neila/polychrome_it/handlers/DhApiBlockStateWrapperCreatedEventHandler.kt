@@ -1,4 +1,4 @@
-package top.neila.polychrome_it.main.handlers
+package top.neila.polychrome_it.handlers
 
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockStateWrapperCreatedEvent
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam
