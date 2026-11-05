@@ -133,7 +133,7 @@ enum class ShaderPackPatcher {
 
     /** 从本注入器专属资源目录读取注入片段，统一去除尾部换行。 */
     fun loadPatch(patchName: String) =
-        ShaderPackPatcher::class.java.getResourceAsStream("/assets/polychrome_it/patches/$name/$patchName")!!
+        ShaderPackPatcher::class.java.getResourceAsStream("/top/neila/polychrome_it/shaderpackpatcher/patches/$name/$patchName")!!
             .bufferedReader().use { it.readText() }
             .trimEnd('\n')
 
