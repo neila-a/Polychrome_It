@@ -28,6 +28,7 @@ import kotlin.io.path.*
  * 一个具体光影包的注入器（枚举项）。框架负责发现匹配的光影包、复制成派生包并调用 generate；
  * 各枚举项只需给出“如何识别”与“如何注入”。共享的复制 / 纹理打包 / lang / GLSL 注入工具见下方受保护方法。
  */
+@Suppress("EnumEntryName", "ProtectedInFinal")
 enum class ShaderPackPatcher {
     bliss {
         override fun injectShaders(derived: Path) {
@@ -86,7 +87,7 @@ enum class ShaderPackPatcher {
 
             val libFile = derived.resolve("shaders/lib/polychrome_it.glsl")
             libFile.parent.toFile().mkdir()
-            val diffuseSize = PolychromeItTexture.diffuse.size.value
+            val diffuseSize = PolychromeItTexture.diffuse.image.size
             // 把各方块在 block.properties 里分配到的固定 ID 以 #define 注入（mc_Entity.x 携带的就是这个 ID）。
             val idDefines = buildString {
                 for (block in PolychromeItBlock.entries) {
@@ -130,7 +131,7 @@ enum class ShaderPackPatcher {
     }
 
     /** 从本注入器专属资源目录读取注入片段，统一去除尾部换行。 */
-    fun loadPatch(patchName: String) =
+    protected fun loadPatch(patchName: String) =
         ShaderPackPatcher::class.java.getResourceAsStream("/top/neila/polychrome_it/shaderpackpatcher/patches/$name/$patchName")!!
             .bufferedReader().use { it.readText() }
             .trimEnd('\n')

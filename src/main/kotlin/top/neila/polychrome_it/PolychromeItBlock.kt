@@ -13,8 +13,6 @@ import net.minecraft.world.item.CreativeModeTabs
 import net.minecraft.world.item.Item.*
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.state.BlockBehaviour
-import net.minecraft.world.level.material.MapColor
 import kotlin.math.abs
 
 val black = black(0xFF)
@@ -30,12 +28,13 @@ private val missingno = opaque(0xf800f8)
  * 采用枚举，是因为它有键  
  * 否则完全可以用密封类
  */
+@Suppress("EnumEntryName")
 enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
     image_pixel_block({
         val x = abs(x)
         val z = abs(z)
         try {
-            PolychromeItTexture.diffuse.image.value!!.run {
+            PolychromeItTexture.diffuse.image.image!!.run {
                 val x = x % width
                 val y = z % height
                 getRGB(x, y)

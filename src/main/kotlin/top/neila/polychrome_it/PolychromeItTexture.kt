@@ -1,6 +1,7 @@
 package top.neila.polychrome_it
 
 import net.fabricmc.loader.api.FabricLoader.getInstance
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.nio.file.Path
 import java.nio.file.FileSystems.getDefault
@@ -12,9 +13,10 @@ import kotlin.io.path.createSymbolicLinkPointingTo
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
-val logger = getLogger(MOD_ID)
+val logger: Logger = getLogger(MOD_ID)
 val dir: Path = getInstance().configDir.resolve(MOD_ID)
 
+@Suppress("EnumEntryName", "ProtectedInFinal")
 enum class PolychromeItTexture {
     diffuse,
     normal,
@@ -39,20 +41,26 @@ enum class PolychromeItTexture {
         resolveThis().createSymbolicLinkPointingTo(path)
     }
 
-    var size = Freshenable {
-        runCatching {
-            read(File(path.toString()))?.run {
-                width to height
+    inner class Image {
+        private fun get() =
+            try {
+                read(File(path.toString()))
+            } catch (e: Exception) {
+                null
             }
-        }.getOrDefault(defaultSize) ?: defaultSize
-    }
-    var image = Freshenable {
-        try {
-            read(File(path.toString()))
-        } catch (e: Exception) {
-            null
+
+        var image = get()
+        fun freshen() {
+            this@Image.image = get()
         }
+
+        val size
+            get() = image?.run {
+                width to height
+            } ?: defaultSize
     }
+
+    var image = Image()
 
     fun watch() =
         getDefault().newWatchService()?.run {
@@ -69,7 +77,6 @@ enum class PolychromeItTexture {
                         for (event in key.pollEvents()) {
                             val path = event.context()
                             if (path is Path && path.fileName.name == imageFilename) {
-                                size.freshen()
                                 image.freshen()
                             }
                         }
