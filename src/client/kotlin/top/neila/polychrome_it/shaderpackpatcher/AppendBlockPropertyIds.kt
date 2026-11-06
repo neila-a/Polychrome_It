@@ -3,6 +3,7 @@ package top.neila.polychrome_it.shaderpackpatcher
 import top.neila.polychrome_it.PolychromeItBlock
 import top.neila.polychrome_it.logger
 import java.nio.file.Path
+import java.util.Properties
 import kotlin.io.path.*
 
 /**
@@ -16,34 +17,28 @@ import kotlin.io.path.*
  * 必须在派生包里 block.properties 已就位（复制自原包）之后调用。返回“枚举名大写 -> 分配到的 ID”，
  * 供生成 #define 使用。
  */
-class AppendBlockPropertyIds(derived: Path) : LinkedHashMap<String, Int>() {
+class AppendBlockPropertyIds(derived: Path) : LinkedHashMap<PolychromeItBlock, Int>() {
     init {
-        val bp = derived.resolve("shaders/block.properties")
-        if (!bp.exists()) {
+        val properties = Properties()
+        
+        val file = derived.resolve("shaders/block.properties")
+        if (!file.exists()) {
             logger.warn("未找到 block.properties，跳过方块 ID 映射（世界内方块将无法被识别）。")
         } else {
-            // 先读出现有最大 ID，再追加写入（保留原文件编码，避免破坏 Iris 的 ISO_8859_1 读取）。
-            var maxId = -1
-            val idRegex = Regex("""^block\.(\d+)\s*=""")
-            for (line in bp.readLines()) {
-                val m = idRegex.find(line)
-                if (m != null) {
-                    val id = m.groupValues[1].toIntOrNull()
-                    if (id != null && id > maxId) maxId = id
-                }
-            }
-            var nextId = maxId + 1
-            bp.appendText(buildString {
-                for (block in PolychromeItBlock.entries) {
-                    val key = block.registeredName
-                    append("\nblock.$nextId=$key")
-                    this@AppendBlockPropertyIds[block.name.uppercase()] = nextId
-                    nextId++
-                }
-                append('\n')
-            })
-            logger.info("已在 block.properties 注册本 mod 方块 ID：$this")
+            properties.load(file.reader())
         }
+
+        var nowId = properties.stringPropertyNames().maxOf {
+            runCatching {
+                // 删除"block."
+                it.substring(6)
+            }.getOrNull()?.toIntOrNull() ?: 0
+        }
+        for (block in PolychromeItBlock.entries) {
+            properties.setProperty("block.${++nowId}", block.registeredName)
+            this[block] = nowId
+        }
+        properties.store(file.writer(), "")
+        logger.info("已在 block.properties 注册本 mod 方块 ID：$this")
     }
 }
-        

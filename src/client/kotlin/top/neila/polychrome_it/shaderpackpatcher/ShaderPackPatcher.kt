@@ -19,7 +19,6 @@ package top.neila.polychrome_it.shaderpackpatcher
  * PolychromeItBlock 的枚举风格一致。
  */
 
-import net.fabricmc.loader.api.FabricLoader
 import top.neila.polychrome_it.*
 import java.nio.file.Path
 import kotlin.io.path.*
@@ -65,8 +64,7 @@ enum class ShaderPackPatcher {
             // block.properties 中为本方块指定的固定 ID）把方块 ID 传到片元着色器，故只需定义 POLYCHROME_HAS_BLOCKID，
             // polychrome_it.glsl 直接用 blockID 与注入的 #define 比对识别。
             // include 锚点放在 blockID 声明之后，确保函数定义时 blockID 已在其作用域内。
-            injectIntoFsh(
-                derived.resolve("shaders/dimensions/all_solid.fsh"),
+            derived.resolve("shaders/dimensions/all_solid.fsh").inject(
                 includeAnchor = "flat varying float blockID;",
                 callBefore = "vec4 data1 = clamp( encode(viewToWorld(normal), PackLightmaps), 0.0, 1.0);",
                 callText = loadPatch("call_injection.glsl"),
@@ -74,8 +72,7 @@ enum class ShaderPackPatcher {
             )
             // DH LOD 地形（DH_solid）：无 blockID，polychrome_it.glsl 自动退化为洋红后备判定
             // （DH 方块仍由 DhApiBlockColorOverrideEvent 回传洋红）。
-            injectIntoFsh(
-                derived.resolve("shaders/dimensions/DH_solid.fsh"),
+            derived.resolve("shaders/dimensions/DH_solid.fsh").inject(
                 includeAnchor = "#include \"/lib/settings.glsl\"",
                 callBefore = "gl_FragData[0] = vec4(encodeVec2(Albedo.x,data1.x),",
                 callText = loadPatch("dh_call_injection.glsl")
@@ -91,7 +88,7 @@ enum class ShaderPackPatcher {
             // 把各方块在 block.properties 里分配到的固定 ID 以 #define 注入（mc_Entity.x 携带的就是这个 ID）。
             val idDefines = buildString {
                 for (block in PolychromeItBlock.entries) {
-                    val id = blockIds[block.name.uppercase()]
+                    val id = blockIds[block]
                     if (id != null) appendLine("#define POLYCHROME_ID_${block.name.uppercase()} $id")
                 }
             }
@@ -102,8 +99,7 @@ enum class ShaderPackPatcher {
             )
 
             // 诊断开关：注入 settings.glsl（让 Iris 在光影设置里显示可切换项），并补全 lang 显示名。
-            injectAfterLine(
-                derived.resolve("shaders/lib/settings.glsl"),
+            derived.resolve("shaders/lib/settings.glsl").injectAfterLine(
                 "#define DEBUG_VIEW debug_OFF",
                 loadPatch("settings_injection.glsl")
             )
@@ -132,7 +128,7 @@ enum class ShaderPackPatcher {
 
     /** 从本注入器专属资源目录读取注入片段，统一去除尾部换行。 */
     protected fun loadPatch(patchName: String) =
-        ShaderPackPatcher::class.java.getResourceAsStream("/top/neila/polychrome_it/shaderpackpatcher/patches/$name/$patchName")!!
+        javaClass.getResourceAsStream("/top/neila/polychrome_it/shaderpackpatcher/patches/$name/$patchName")!!
             .bufferedReader().use { it.readText() }
             .trimEnd('\n')
 

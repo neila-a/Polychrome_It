@@ -57,7 +57,9 @@ enum class PolychromeItTexture {
         val size
             get() = image?.run {
                 width to height
-            } ?: defaultSize
+            } ?: (
+                2048 to 2048 // 默认值
+            )
     }
 
     var image = Image()
@@ -93,8 +95,4 @@ enum class PolychromeItTexture {
                 Thread { runCatching { close() } }
             )
         }
-
-    companion object {
-        private val defaultSize = 2048 to 2048
-    }
 }
