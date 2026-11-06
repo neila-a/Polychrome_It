@@ -1,8 +1,8 @@
 package top.neila.polychrome_it
 
-class Refreshable<T>(val getter: () -> T) {
+class Freshenable<T>(val getter: () -> T) {
     var value = getter()
-    fun refresh() {
+    fun freshen() {
         value = getter()
     }
 }

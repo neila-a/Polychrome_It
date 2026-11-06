@@ -1,30 +1,30 @@
 package top.neila.polychrome_it
 
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents.modifyOutputEvent
 import net.minecraft.core.BlockPos
-import net.minecraft.core.Registry
+import net.minecraft.core.Registry.register
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
-import net.minecraft.resources.Identifier
-import net.minecraft.resources.ResourceKey
-import net.minecraft.util.ARGB
+import net.minecraft.resources.Identifier.fromNamespaceAndPath
+import net.minecraft.resources.ResourceKey.create
+import net.minecraft.util.ARGB.*
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.CreativeModeTabs
-import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.*
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.material.MapColor
 import kotlin.math.abs
 
-val black = ARGB.black(0xFF)
+val black = black(0xFF)
 
 const val MOD_ID = "polychrome_it"
 
 /**
  * {@see <a href="https://zh.minecraft.wiki/w/无效纹理与模型">Minecraft Wiki</a>}
  */
-private val missingno = ARGB.opaque(0xf800f8)
+private val missingno = opaque(0xf800f8)
 
 /*
  * 采用枚举，是因为它有键  
@@ -40,10 +40,10 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
                 val y = z % height
                 getRGB(x, y)
                 /*private val grassBlockTopAverageColor = 0x91
-                return ARGB.color(
-                    ARGB.red(originalColor) * 255 / grassBlockTopAverageColor,
-                    ARGB.green(originalColor) * 255 / grassBlockTopAverageColor,
-                    ARGB.blue(originalColor) * 255 / grassBlockTopAverageColor
+                return color(
+                    red(originalColor) * 255 / grassBlockTopAverageColor,
+                    green(originalColor) * 255 / grassBlockTopAverageColor,
+                    blue(originalColor) * 255 / grassBlockTopAverageColor
                 )*/
             }
         } catch (_: Exception) {
@@ -56,14 +56,14 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
     }),
     simple_gradient_block({
         // ARGB.color 会自动and 256
-        ARGB.color(x, y, z)
+        color(x, y, z)
     });
 
     val registered = run {
-        val identifier = Identifier.fromNamespaceAndPath(MOD_ID, name)
-        val blockKey = ResourceKey.create(Registries.BLOCK, identifier)
+        val identifier = fromNamespaceAndPath(MOD_ID, name)
+        val blockKey = create(Registries.BLOCK, identifier)
 
-        Registry.register(
+        register(
             BuiltInRegistries.BLOCK,
             blockKey,
             Block(
@@ -73,16 +73,16 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
                 Blocks.STONE.properties()
             )
         ).apply {
-            val itemKey = ResourceKey.create(Registries.ITEM, identifier)
-            Registry.register(
+            val itemKey = create(Registries.ITEM, identifier)
+            register(
                 BuiltInRegistries.ITEM,
                 itemKey,
-                BlockItem(this, Item.Properties().setId(itemKey).useBlockDescriptionPrefix())
+                BlockItem(this, Properties().setId(itemKey).useBlockDescriptionPrefix())
             ).run {
-                registerBlocks(Item.BY_BLOCK, this)
+                registerBlocks(BY_BLOCK, this)
             }
 
-            CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COLORED_BLOCKS).register {
+            modifyOutputEvent(CreativeModeTabs.COLORED_BLOCKS).register {
                 it.accept(this)
             }
         }

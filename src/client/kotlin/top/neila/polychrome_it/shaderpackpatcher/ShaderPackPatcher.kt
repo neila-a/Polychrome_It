@@ -20,9 +20,7 @@ package top.neila.polychrome_it.shaderpackpatcher
  */
 
 import net.fabricmc.loader.api.FabricLoader
-import top.neila.polychrome_it.PolychromeItBlock
-import top.neila.polychrome_it.PolychromeItTexture
-import top.neila.polychrome_it.logger
+import top.neila.polychrome_it.*
 import java.nio.file.Path
 import kotlin.io.path.*
 

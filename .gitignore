@@ -34,3 +34,5 @@ gradle
 run
 .direnv
 src/main/generated
+
+.vscode/launch.json

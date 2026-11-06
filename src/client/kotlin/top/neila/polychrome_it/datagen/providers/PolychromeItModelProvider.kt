@@ -4,12 +4,12 @@ import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput
 import net.minecraft.client.data.models.BlockModelGenerators
 import net.minecraft.client.data.models.ItemModelGenerators
-import net.minecraft.client.data.models.blockstates.MultiVariantGenerator
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator.dispatch
 import net.minecraft.client.data.models.model.ModelTemplate
 import net.minecraft.client.data.models.model.TextureMapping
 import net.minecraft.resources.Identifier
 import top.neila.polychrome_it.MOD_ID
-import top.neila.polychrome_it.PolychromeItBlock
+import top.neila.polychrome_it.PolychromeItBlock.entries
 import java.util.Optional
 
 /**
@@ -28,10 +28,10 @@ private val allWhiteTemplate = ModelTemplate(
 
 class PolychromeItModelProvider(output: FabricPackOutput) : FabricModelProvider(output) {
     override fun generateBlockStateModels(blockModelGenerators: BlockModelGenerators) = with(blockModelGenerators) {
-        for (block in PolychromeItBlock.entries) {
+        for (block in entries) {
             val model = allWhiteTemplate.create(block.registered, TextureMapping(), modelOutput)
             blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(block.registered, BlockModelGenerators.plainVariant(model))
+                dispatch(block.registered, BlockModelGenerators.plainVariant(model))
             )
             registerSimpleItemModel(block.registered, model)
         }

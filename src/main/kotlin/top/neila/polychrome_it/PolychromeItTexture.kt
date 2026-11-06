@@ -1,21 +1,19 @@
 package top.neila.polychrome_it
 
-import net.fabricmc.loader.api.FabricLoader
-import org.slf4j.LoggerFactory
-import java.awt.image.BufferedImage
+import net.fabricmc.loader.api.FabricLoader.getInstance
+import org.slf4j.LoggerFactory.getLogger
 import java.nio.file.Path
-import java.nio.file.FileSystems
+import java.nio.file.FileSystems.getDefault
 import java.io.File
 import kotlin.io.path.name
-import java.nio.file.StandardWatchEventKinds
-import javax.imageio.ImageIO
-import kotlin.io.path.copyTo
+import java.nio.file.StandardWatchEventKinds.*
+import javax.imageio.ImageIO.read
 import kotlin.io.path.createSymbolicLinkPointingTo
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
-val logger = LoggerFactory.getLogger(MOD_ID)
-val dir: Path = FabricLoader.getInstance().configDir.resolve(MOD_ID)
+val logger = getLogger(MOD_ID)
+val dir: Path = getInstance().configDir.resolve(MOD_ID)
 
 enum class PolychromeItTexture {
     diffuse,
@@ -41,29 +39,29 @@ enum class PolychromeItTexture {
         resolveThis().createSymbolicLinkPointingTo(path)
     }
 
-    var size = Refreshable {
+    var size = Freshenable {
         runCatching {
-            ImageIO.read(File(path.toString()))?.run {
+            read(File(path.toString()))?.run {
                 width to height
             }
         }.getOrDefault(defaultSize) ?: defaultSize
     }
-    var image = Refreshable {
+    var image = Freshenable {
         try {
-            ImageIO.read(File(path.toString()))
+            read(File(path.toString()))
         } catch (e: Exception) {
             null
         }
     }
 
     fun watch() =
-        FileSystems.getDefault().newWatchService()?.run {
+        getDefault().newWatchService()?.run {
             Thread {
                 var key = dir.parent.register(
                     this,
-                    StandardWatchEventKinds.ENTRY_CREATE,
-                    StandardWatchEventKinds.ENTRY_DELETE,
-                    StandardWatchEventKinds.ENTRY_MODIFY
+                    ENTRY_CREATE,
+                    ENTRY_DELETE,
+                    ENTRY_MODIFY
                 )
                 runCatching {
                     while (true) {
@@ -71,8 +69,8 @@ enum class PolychromeItTexture {
                         for (event in key.pollEvents()) {
                             val path = event.context()
                             if (path is Path && path.fileName.name == imageFilename) {
-                                size.refresh()
-                                image.refresh()
+                                size.freshen()
+                                image.freshen()
                             }
                         }
                         if (!key.reset()) break

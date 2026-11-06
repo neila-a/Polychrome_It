@@ -1,6 +1,6 @@
 package top.neila.polychrome_it
 
-import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister
+import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister.on
 import net.fabricmc.api.ModInitializer
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockStateWrapperCreatedEvent
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockColorOverrideEvent
@@ -13,11 +13,11 @@ object PolychromeIt : ModInitializer {
         PolychromeItBlock.simple_gradient_block.registered
 
         try {
-            DhApiEventRegister.on(
+            on(
                 DhApiBlockStateWrapperCreatedEvent::class.java,
                 DhApiBlockStateWrapperCreatedEventHandler
             )
-            DhApiEventRegister.on(
+            on(
                 DhApiBlockColorOverrideEvent::class.java,
                 DhApiBlockColorOverrideEventHandler
             )

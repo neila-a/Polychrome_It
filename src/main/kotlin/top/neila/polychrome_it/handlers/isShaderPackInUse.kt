@@ -1,6 +1,6 @@
 package top.neila.polychrome_it.handlers
 
-import net.irisshaders.iris.api.v0.IrisApi
+import net.irisshaders.iris.api.v0.IrisApi.getInstance
 import java.lang.NoClassDefFoundError
 
 @Volatile
@@ -22,7 +22,7 @@ fun isShaderPackInUse(): Boolean {
     if (cachedInUse != null && now - lastCheck < 2000) return cachedInUse!!
     lastCheck = now
     return try {
-        IrisApi.getInstance().isShaderPackInUse
+        getInstance().isShaderPackInUse
     } catch (_: NoClassDefFoundError) {
         false
     }

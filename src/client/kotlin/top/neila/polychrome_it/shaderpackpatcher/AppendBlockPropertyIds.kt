@@ -33,15 +33,15 @@ class AppendBlockPropertyIds(derived: Path) : LinkedHashMap<String, Int>() {
                 }
             }
             var nextId = maxId + 1
-            val sb = StringBuilder()
-            for (block in PolychromeItBlock.entries) {
-                val key = block.registeredName
-                sb.append("\nblock.$nextId=$key")
-                this[block.name.uppercase()] = nextId
-                nextId++
-            }
-            sb.append('\n')
-            bp.appendText(sb.toString())
+            bp.appendText(buildString {
+                for (block in PolychromeItBlock.entries) {
+                    val key = block.registeredName
+                    append("\nblock.$nextId=$key")
+                    this@AppendBlockPropertyIds[block.name.uppercase()] = nextId
+                    nextId++
+                }
+                append('\n')
+            })
             logger.info("已在 block.properties 注册本 mod 方块 ID：$this")
         }
     }

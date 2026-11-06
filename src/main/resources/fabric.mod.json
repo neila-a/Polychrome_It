@@ -49,5 +49,8 @@
     },
     "suggests": {
         "dh-api": ">=1.0"
+    },
+    "recommends": {
+        "iris": ">=1.11.7+mc26.3"
     }
 }

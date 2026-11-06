@@ -1,7 +1,7 @@
 package top.neila.polychrome_it
 
 import net.fabricmc.api.ClientModInitializer
-import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry
+import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry.register
 import top.neila.polychrome_it.shaderpackpatcher.generatePatchedShaderpack
 
 /**
@@ -13,7 +13,7 @@ import top.neila.polychrome_it.shaderpackpatcher.generatePatchedShaderpack
 object PolychromeItClient : ClientModInitializer {
     override fun onInitializeClient() {
         for (block in PolychromeItBlock.entries) {
-            BlockColorRegistry.register(
+            register(
                 listOf(DerivedBlockTintSource(block)),
                 block.registered
             )

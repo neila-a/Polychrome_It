@@ -1,6 +1,6 @@
 package top.neila.polychrome_it.shaderpackpatcher
 
-import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.FabricLoader.getInstance
 import java.nio.file.Path
 import kotlin.io.path.*
 import top.neila.polychrome_it.logger
@@ -13,7 +13,7 @@ const val DERIVED_SUFFIX = " + Polychrome It"
  * 派生包（名字含后缀）会被跳过，避免重复处理自家产物。
  */
 fun generatePatchedShaderpack() {
-    val shaderpacks = FabricLoader.getInstance().gameDir.resolve("shaderpacks")
+    val shaderpacks = getInstance().gameDir.resolve("shaderpacks")
     if (!shaderpacks.exists()) {
         logger.warn("未找到 shaderpacks/ 目录，跳过派生包生成。")
         return
