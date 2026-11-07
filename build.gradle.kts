@@ -62,6 +62,8 @@ dependencies {
 
     // for datagen
     runtimeOnly("maven.modrinth:sodium:mc26.3-0.9.3-beta.1-fabric")
+
+    runtimeOnly("maven.modrinth:modmenu:21.0.0")
 }
 
 kotlin {
@@ -115,4 +117,25 @@ fabricApi {
 	configureDataGeneration() {
 		client = true
 	}
+}
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/neila-a/Polychrome_It")
+            credentials {
+                username = "neila-a"
+                password = project.findProperty("gpr.key") as String?
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("gpr") {
+            groupId = project.group.toString()
+            artifactId = "polychrome_it"
+            version = project.version.toString()
+            from(components["java"])
+        }
+    }
 }

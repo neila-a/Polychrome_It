@@ -8,13 +8,22 @@
         {
             "name": "Neila",
             "contact": {
-                "homepage": "https://neila.top"
+                "homepage": "https://neila.top",
+                "email": "neilaspace@outlook.com"
             }
         }
     ],
     "contact": {
         "sources": "https://github.com/neila-a/polychrome_it",
         "issues": "https://github.com/neila-a/polychrome_it/issues"
+    },
+    "custom": {
+        "modmenu": {
+            "links": {
+                "modmenu.github_releases": "https://github.com/neila-a/polychrome_it/releases",
+                "modmenu.modrinth": "https://modrinth.com/mod/polychrome_it"
+            }
+        }
     },
     "license": "GPL-3.0-or-later",
     "icon": "assets/polychrome_it/icon.png",
@@ -48,7 +57,9 @@
         "fabric-creative-tab-api-v1": ">=5.0.22"
     },
     "suggests": {
-        "dh-api": ">=1.0"
+        "dh-api": ">=1.0",
+        "modmenu": ">=21.0.0",
+        "xaeroworldmap": ">=1.47.0"
     },
     "recommends": {
         "iris": ">=1.11.7+mc26.3"
