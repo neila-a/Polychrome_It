@@ -3,12 +3,14 @@ package top.neila.polychrome_it
 import net.fabricmc.loader.api.FabricLoader.getInstance
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
+import top.neila.polychrome_it.shaderpackpatcher.generatePatchedShaderpack
 import java.nio.file.Path
 import java.nio.file.FileSystems.getDefault
 import java.io.File
 import kotlin.io.path.name
 import java.nio.file.StandardWatchEventKinds.*
 import javax.imageio.ImageIO.read
+import kotlin.concurrent.thread
 import kotlin.io.path.createSymbolicLinkPointingTo
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
@@ -48,6 +50,7 @@ enum class PolychromeItTexture {
             null
         }
 
+    @Volatile
     var image = get()
     fun freshen() {
         image = get()
@@ -62,7 +65,12 @@ enum class PolychromeItTexture {
 
     fun watch() =
         getDefault().newWatchService()?.run {
-            Thread {
+            thread(
+                start = true,
+                isDaemon = true,
+                name = "PolychromeIt image watcher for $name"
+            ) {
+                generatePatchedShaderpack()
                 var key = dir.parent.register(
                     this,
                     ENTRY_CREATE,
@@ -76,15 +84,12 @@ enum class PolychromeItTexture {
                             val path = event.context()
                             if (path is Path && path.fileName.name == imageFilename) {
                                 freshen()
+                                generatePatchedShaderpack()
                             }
                         }
                         if (!key.reset()) break
                     }
                 }
-            }.apply {
-                isDaemon = true
-                name = "PolychromeIt image watcher for $name"
-                start()
             }
 
             Runtime.getRuntime().addShutdownHook(

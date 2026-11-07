@@ -1,7 +1,6 @@
 package top.neila.polychrome_it.shaderpackpatcher
 
 import net.fabricmc.loader.api.FabricLoader.getInstance
-import java.nio.file.Path
 import kotlin.io.path.*
 import top.neila.polychrome_it.logger
 
