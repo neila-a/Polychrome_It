@@ -39,3 +39,7 @@ Load full-color block colors, roughness, normals, and even ambient occlusion fro
 1. Launch the game and select the shaderpack with ` + Polychrome It!`.
 1. In the shaderpack settings, make sure to enable Specular Reflections in Resource Pack Support.
 1. Not required, but it's recommended to set the Sun Reflection Multiplier above 2.
+
+## Known Issues
+
+- PBR doesn't work in *Distant Horizons*.
