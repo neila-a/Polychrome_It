@@ -32,7 +32,19 @@
         "main": [
             {
                 "adapter": "kotlin",
-                "value": "top.neila.polychrome_it.PolychromeIt"
+                "value": "top.neila.polychrome_it.handlers.DhApiBlockColorOverrideEventHandler::register"
+            },
+            {
+                "adapter": "kotlin",
+                "value": "top.neila.polychrome_it.handlers.DhApiBlockStateWrapperCreatedEventHandler::register"
+            },
+            {
+                "adapter": "kotlin",
+                "value": "top.neila.polychrome_it.PolychromeItBlock\$Companion"
+            },
+            {
+                "adapter": "kotlin",
+                "value": "top.neila.polychrome_it.PolychromeItTexture\$Companion"
             }
         ],
         "client": [

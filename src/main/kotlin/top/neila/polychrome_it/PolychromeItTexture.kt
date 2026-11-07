@@ -1,5 +1,6 @@
 package top.neila.polychrome_it
 
+import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader.getInstance
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
@@ -43,12 +44,9 @@ enum class PolychromeItTexture {
         resolveThis().createSymbolicLinkPointingTo(path)
     }
 
-    private fun get() =
-        try {
-            read(File(path.toString()))
-        } catch (e: Exception) {
-            null
-        }
+    private fun get() = runCatching {
+        read(File(path.toString()))
+    }.getOrNull()
 
     @Volatile
     var image = get()
@@ -96,4 +94,10 @@ enum class PolychromeItTexture {
                 Thread { runCatching { close() } }
             )
         }
+
+    companion object : ModInitializer {
+        override fun onInitialize() {
+            diffuse.watch()
+        }
+    }
 }

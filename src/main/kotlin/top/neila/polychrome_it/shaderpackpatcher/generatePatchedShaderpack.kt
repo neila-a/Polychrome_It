@@ -22,12 +22,12 @@ fun generatePatchedShaderpack() {
     var handled = 0
     for (pack in entries) {
         val patcher = ShaderPackPatcher.entries.firstOrNull { it.matches(pack) } ?: continue
-        try {
+        runCatching {
             patcher.generate(pack)
             handled++
-        } catch (e: Exception) {
-            logger.error("为 ${pack.fileName} 生成派生包失败：${e.message}")
-            e.printStackTrace()
+        }.onFailure {
+            logger.error("为 ${pack.fileName} 生成派生包失败：${it.message}")
+            it.printStackTrace()
         }
     }
     if (handled == 0) {

@@ -21,9 +21,7 @@ fun isShaderPackInUse(): Boolean {
     val now = System.currentTimeMillis()
     if (cachedInUse != null && now - lastCheck < 2000) return cachedInUse!!
     lastCheck = now
-    return try {
+    return runCatching {
         getInstance().isShaderPackInUse
-    } catch (_: NoClassDefFoundError) {
-        false
-    }
+    }.getOrDefault(false)
 }

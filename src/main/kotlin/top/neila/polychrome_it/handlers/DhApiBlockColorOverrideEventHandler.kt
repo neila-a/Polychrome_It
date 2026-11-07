@@ -4,6 +4,8 @@ import com.seibel.distanthorizons.api.DhApi.Delayed.wrapperFactory
 import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockColorOverrideEvent
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam
 import net.minecraft.core.BlockPos
+import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister.on
+import com.seibel.distanthorizons.api.objects.DhApiResult
 import net.minecraft.util.ARGB.*
 import top.neila.polychrome_it.PolychromeItBlock
 
@@ -32,5 +34,9 @@ object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
                 break
             }
         }
+    }
+
+    fun register() = runCatching {
+        on(DhApiBlockColorOverrideEvent::class.java, this)
     }
 }

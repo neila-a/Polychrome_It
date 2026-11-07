@@ -1,5 +1,6 @@
 package top.neila.polychrome_it
 
+import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents.modifyOutputEvent
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Registry.register
@@ -33,7 +34,7 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
     image_pixel_block({
         val x = abs(x)
         val z = abs(z)
-        try {
+        runCatching {
             PolychromeItTexture.diffuse.image!!.run {
                 val x = x % width
                 val y = z % height
@@ -45,7 +46,7 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
                     blue(originalColor) * 255 / grassBlockTopAverageColor
                 )*/
             }
-        } catch (_: Exception) {
+        }.getOrElse {
             val xForUse = if (z and 1 == 0) x else x + 1
             if (xForUse and 1 == 0)
                 black
@@ -92,5 +93,9 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
      */
     val registeredName: String by lazy {
         BuiltInRegistries.BLOCK.wrapAsHolder(registered).registeredName
+    }
+
+    companion object : ModInitializer {
+        override fun onInitialize() = Unit
     }
 }
