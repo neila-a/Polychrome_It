@@ -41,28 +41,24 @@ enum class PolychromeItTexture {
         resolveThis().createSymbolicLinkPointingTo(path)
     }
 
-    inner class Image {
-        private fun get() =
-            try {
-                read(File(path.toString()))
-            } catch (e: Exception) {
-                null
-            }
-
-        var image = get()
-        fun freshen() {
-            this@Image.image = get()
+    private fun get() =
+        try {
+            read(File(path.toString()))
+        } catch (e: Exception) {
+            null
         }
 
-        val size
-            get() = image?.run {
-                width to height
-            } ?: (
-                2048 to 2048 // 默认值
-            )
+    var image = get()
+    fun freshen() {
+        image = get()
     }
 
-    var image = Image()
+    val size
+        get() = image?.run {
+            width to height
+        } ?: (
+                2048 to 2048 // 默认值
+                )
 
     fun watch() =
         getDefault().newWatchService()?.run {
@@ -79,7 +75,7 @@ enum class PolychromeItTexture {
                         for (event in key.pollEvents()) {
                             val path = event.context()
                             if (path is Path && path.fileName.name == imageFilename) {
-                                image.freshen()
+                                freshen()
                             }
                         }
                         if (!key.reset()) break

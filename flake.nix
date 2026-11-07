@@ -9,7 +9,7 @@
         #flake-utils.url = "github:numtide/flake-utils";
         flake-utils.url = "https://proxy.gitwarp.top/https://github.com/numtide/flake-utils/archive/refs/heads/master.zip";
     };
-    description = "Make your Minecraft more colorful.\nSupports full RGB range.";
+    description = "Load full-color block colors, roughness, normals, and even ambient occlusion from position or images covering the entire world.";
     outputs =
         {
             self,

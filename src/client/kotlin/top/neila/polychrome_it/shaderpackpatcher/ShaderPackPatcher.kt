@@ -84,7 +84,7 @@ enum class ShaderPackPatcher {
 
             val libFile = derived.resolve("shaders/lib/polychrome_it.glsl")
             libFile.parent.toFile().mkdir()
-            val diffuseSize = PolychromeItTexture.diffuse.image.size
+            val diffuseSize = PolychromeItTexture.diffuse.size
             // 把各方块在 block.properties 里分配到的固定 ID 以 #define 注入（mc_Entity.x 携带的就是这个 ID）。
             val idDefines = buildString {
                 for (block in PolychromeItBlock.entries) {

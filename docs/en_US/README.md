@@ -2,8 +2,7 @@
 
 English | [大陆简体中文](/docs/zh_CN/README.md)
 
-Make your Minecraft more colorful.  
-Supports full RGB range.
+Load full-color block colors, roughness, normals, and even ambient occlusion from position or images covering the entire world.
 
 ## Mod Support
 

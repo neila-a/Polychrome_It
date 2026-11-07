@@ -3,6 +3,7 @@ package top.neila.polychrome_it
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry.register
 import top.neila.polychrome_it.shaderpackpatcher.generatePatchedShaderpack
+import kotlin.system.measureTimeMillis
 
 /**
  * 客户端专用入口点。
@@ -18,7 +19,15 @@ object PolychromeItClient : ClientModInitializer {
                 block.registered
             )
         }
+
         // 轻量版：生成 "Bliss + Polychrome It" 派生光影包（不修改 Bliss 原文件）
-        generatePatchedShaderpack()
+        Thread {
+            // 会花费约800ms，所以应创建线程。
+            generatePatchedShaderpack()
+        }.apply {
+            name = "PolychromeIt shaderpack generator"
+            start()
+        }
+
     }
 }

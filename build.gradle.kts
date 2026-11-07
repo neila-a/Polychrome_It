@@ -76,7 +76,7 @@ tasks.processResources {
     inputs.property("loader_version", project.property("loader_version"))
 
     val name = "Polychrome It!"
-    val description = "Make your Minecraft more colorful.\nSupports full RGB range."
+    val description = "Load full-color block colors, roughness, normals, and even ambient occlusion from position or images covering the entire world."
     val nameAndDescriptionMap = mapOf(
         "name" to name,
         "description" to description
