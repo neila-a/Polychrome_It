@@ -32,6 +32,12 @@
         "main": [
             {
                 "adapter": "kotlin",
+                "value": "top.neila.polychrome_it.PolychromeItBlock\$Companion"
+            }
+        ],
+        "client": [
+            {
+                "adapter": "kotlin",
                 "value": "top.neila.polychrome_it.handlers.DhApiBlockColorOverrideEventHandler::register"
             },
             {
@@ -40,23 +46,23 @@
             },
             {
                 "adapter": "kotlin",
-                "value": "top.neila.polychrome_it.PolychromeItBlock\$Companion"
+                "value": "top.neila.polychrome_it.PolychromeItClient"
             },
             {
                 "adapter": "kotlin",
                 "value": "top.neila.polychrome_it.PolychromeItTexture\$Companion"
             }
         ],
-        "client": [
-            {
-                "adapter": "kotlin",
-                "value": "top.neila.polychrome_it.PolychromeItClient"
-            }
-        ],
         "fabric-datagen": [
             {
                 "adapter": "kotlin",
                 "value": "top.neila.polychrome_it.datagen.PolychromeItDataGenerator"
+            }
+        ],
+        "modmenu": [
+            {
+                "adapter": "kotlin",
+                "value": "top.neila.polychrome_it.PolychromeItModMenuIntegration"
             }
         ]
     },
@@ -66,14 +72,15 @@
         "java": ">=25",
         "fabric-language-kotlin": ">=1.14.2+kotlin.2.4.21",
         "fabric-rendering-v1": ">=27.1.0",
-        "fabric-creative-tab-api-v1": ">=5.0.22"
+        "fabric-creative-tab-api-v1": ">=5.0.22",
+        "cloth-config": ">=26.3.159"
     },
     "suggests": {
         "dh-api": ">=1.0",
-        "modmenu": ">=21.0.0",
         "xaeroworldmap": ">=1.47.0"
     },
     "recommends": {
-        "iris": ">=1.11.7+mc26.3"
+        "iris": ">=1.11.7+mc26.3",
+        "modmenu": ">=21.0.0"
     }
 }

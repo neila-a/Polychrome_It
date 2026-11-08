@@ -153,11 +153,10 @@ enum class ShaderPackPatcher {
     protected fun packWorldTextures(derived: Path) = derived.resolve("shaders/texture/world").run {
         toFile().mkdir()
 
-        val mcmeta = loadPatch("image.mcmeta")
         PolychromeItTexture.entries.filter {
             it.exists
         }.forEach {
-            it.write(this, mcmeta)
+            it.write(this)
         }
         logger.info("世界纹理打包完成：$this")
     }

@@ -5,10 +5,10 @@ import com.seibel.distanthorizons.api.methods.events.abstractEvents.DhApiBlockCo
 import com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiEventParam
 import net.minecraft.core.BlockPos
 import com.seibel.distanthorizons.api.methods.events.DhApiEventRegister.on
-import com.seibel.distanthorizons.api.objects.DhApiResult
 import net.minecraft.util.ARGB.*
 import net.irisshaders.iris.api.v0.IrisApi.getInstance
 import top.neila.polychrome_it.PolychromeItBlock
+import top.neila.polychrome_it.tintSources
 
 // 用于识别 image_pixel_block 的染色：品红 (R=255,G=0,B=255)。着色器用“红≈蓝、绿≈0”的比例判定。
 private val magenta = opaque(0xff00ff)
@@ -25,7 +25,7 @@ object DhApiBlockColorOverrideEventHandler : DhApiBlockColorOverrideEvent() {
                 runCatching {
                     getInstance().isShaderPackInUse
                 }.getOrDefault(false).let { isShaderPackInUse ->
-                    if (isShaderPackInUse) magenta else it.tint(
+                    if (isShaderPackInUse) magenta else tintSources[it]!!(
                         BlockPos(value.blockPosX, value.blockPosY, value.blockPosZ)
                     )
                 }.let { color ->

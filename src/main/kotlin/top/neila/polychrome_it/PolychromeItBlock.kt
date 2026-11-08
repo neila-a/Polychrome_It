@@ -2,59 +2,27 @@ package top.neila.polychrome_it
 
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents.modifyOutputEvent
-import net.minecraft.core.BlockPos
 import net.minecraft.core.Registry.register
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier.fromNamespaceAndPath
 import net.minecraft.resources.ResourceKey.create
-import net.minecraft.util.ARGB.*
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.CreativeModeTabs
 import net.minecraft.world.item.Item.*
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-import kotlin.math.abs
-
-val black = black(0xFF)
 
 const val MOD_ID = "polychrome_it"
-
-/**
- * {@see <a href="https://zh.minecraft.wiki/w/无效纹理与模型">Minecraft Wiki</a>}
- */
-private val missingno = opaque(0xf800f8)
 
 /*
  * 采用枚举，是因为它有键  
  * 否则完全可以用密封类
  */
 @Suppress("EnumEntryName")
-enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
-    image_pixel_block({
-        val x = abs(x)
-        val z = abs(z)
-        PolychromeItTexture.diffuse.image!!.runCatching {
-            getRGB(x % width, z % height)
-            /*private val grassBlockTopAverageColor = 0x91
-            return color(
-                red(originalColor) * 255 / grassBlockTopAverageColor,
-                green(originalColor) * 255 / grassBlockTopAverageColor,
-                blue(originalColor) * 255 / grassBlockTopAverageColor
-            )*/
-        }.getOrElse {
-            (if (z and 1 == 0) x else x + 1).let { xForUse ->
-                if (xForUse and 1 == 0)
-                    black
-                else
-                    missingno
-            }
-        }
-    }),
-    simple_gradient_block({
-        // ARGB.color 会自动and 256
-        color(x, y, z)
-    });
+enum class PolychromeItBlock {
+    image_pixel_block,
+    simple_gradient_block;
 
     val registered = fromNamespaceAndPath(MOD_ID, name).let { identifier ->
         create(Registries.BLOCK, identifier).let {

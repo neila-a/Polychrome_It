@@ -1,6 +1,6 @@
 package top.neila.polychrome_it
 
-import net.fabricmc.api.ModInitializer
+import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.loader.api.FabricLoader.getInstance
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
@@ -39,8 +39,17 @@ enum class PolychromeItTexture {
 
     protected fun Path.resolveThis(): Path = resolve(imageFilename)
 
-    fun write(worldDir: Path, mcmeta: String) = worldDir.apply {
-        resolve("$name.png.mcmeta").writeText(mcmeta)
+    fun write(worldDir: Path) = worldDir.apply {
+        resolve("${this@PolychromeItTexture.name}.png.mcmeta").writeText(
+            """
+            {
+                "texture": {
+                    "blur": ${PolychromeItClient.lastBlurTexture ?: "fail"},
+                    "clamp": true
+                }
+            }
+            """.trimIndent()
+        )
         resolveThis().createSymbolicLinkPointingTo(path)
     }
 
@@ -68,7 +77,6 @@ enum class PolychromeItTexture {
                 isDaemon = true,
                 name = "Polychrome It! image watcher for $name"
             ) {
-                generatePatchedShaderpack()
                 var key = dir.parent.register(
                     this,
                     ENTRY_CREATE,
@@ -95,7 +103,7 @@ enum class PolychromeItTexture {
             )
         }
 
-    companion object : ModInitializer {
-        override fun onInitialize() = diffuse.watch() ?: Unit
+    companion object : ClientModInitializer {
+        override fun onInitializeClient() = diffuse.watch() ?: Unit
     }
 }

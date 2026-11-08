@@ -18,5 +18,5 @@ class DerivedBlockTintSource(private val block: PolychromeItBlock) : BlockTintSo
     override fun color(state: BlockState) = black
 
     override fun colorInWorld(state: BlockState, level: BlockAndTintGetter, pos: BlockPos) =
-        block.tint(pos)
+        tintSources[block]!!(pos)
 }
