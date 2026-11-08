@@ -36,6 +36,7 @@
                     ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux runtimeLibs;
             in
             {
+                # Hmm, I can't find how to package it.
                 devShells.default = pkgs.mkShell {
                     packages = allLibs;
                     LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath allLibs;

@@ -4,5 +4,6 @@
   "modmenu.nameTranslation.polychrome_it": "多彩化它！",
   "modmenu.descriptionTranslation.polychrome_it": "从位置或覆盖整个世界的图片中加载全彩的方块颜色、粗糙度、法线甚至是环境光遮蔽。",
   "text.autoconfig.polychrome_it.title": "配置多彩化它！",
-  "text.autoconfig.polychrome_it.option.blurTexture": "模糊贴图"
+  "text.autoconfig.polychrome_it.option.blurTexture": "模糊贴图",
+  "text.autoconfig.polychrome_it.option.blurTexture.@Tooltip": "是的，它同时作用于所有贴图。\n不然的话会很丑……"
 }

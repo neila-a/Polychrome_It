@@ -4,5 +4,6 @@
   "modmenu.nameTranslation.polychrome_it": "${name}",
   "modmenu.descriptionTranslation.polychrome_it": "${description}",
   "text.autoconfig.polychrome_it.title": "Config Polychrome It!",
-  "text.autoconfig.polychrome_it.option.blurTexture": "Blur texture"
+  "text.autoconfig.polychrome_it.option.blurTexture": "Blur texture",
+  "text.autoconfig.polychrome_it.option.blurTexture.@Tooltip": "Yes, it affects all the textures at the same time.\nOtherwise, it would look really ugly..."
 }
