@@ -10,12 +10,10 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry.register
  * 这些是客户端类，在专用服务器上不可用，若在 common 入口点引用会导致服务器启动崩溃。
  */
 object PolychromeItClient : ClientModInitializer {
-    override fun onInitializeClient() {
-        for (block in PolychromeItBlock.entries) {
-            register(
-                listOf(DerivedBlockTintSource(block)),
-                block.registered
-            )
-        }
+    override fun onInitializeClient() = PolychromeItBlock.entries.forEach {
+        register(
+            listOf(DerivedBlockTintSource(it)),
+            it.registered
+        )
     }
 }

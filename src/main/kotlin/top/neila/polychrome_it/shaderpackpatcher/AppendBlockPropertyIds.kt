@@ -18,25 +18,25 @@ import kotlin.io.path.*
  * 供生成 #define 使用。
  */
 class AppendBlockPropertyIds(derived: Path) : LinkedHashMap<PolychromeItBlock, Int>() {
+    private val properties = Properties()
+    private val file = derived.resolve("shaders/block.properties")
+
     init {
-        val properties = Properties()
-        
-        val file = derived.resolve("shaders/block.properties")
-        if (!file.exists()) {
-            logger.warn("未找到 block.properties，跳过方块 ID 映射（世界内方块将无法被识别）。")
-        } else {
-            properties.load(file.reader())
-        }
+        file.takeIf {
+            it.exists()
+        }?.run {
+            properties.load(reader())
+        } ?: logger.warn("未找到 block.properties，跳过方块 ID 映射（世界内方块将无法被识别）。")
 
         var nowId = properties.stringPropertyNames().maxOf {
-            runCatching {
+            it.runCatching {
                 // 删除"block."
-                it.substring(6)
+                substring(6)
             }.getOrNull()?.toIntOrNull() ?: 0
         }
-        for (block in PolychromeItBlock.entries) {
-            properties.setProperty("block.${++nowId}", block.registeredName)
-            this[block] = nowId
+        PolychromeItBlock.entries.forEach {
+            properties.setProperty("block.${++nowId}", it.registeredName)
+            this[it] = nowId
         }
         properties.store(file.writer(), "")
         logger.info("已在 block.properties 注册本 mod 方块 ID：$this")

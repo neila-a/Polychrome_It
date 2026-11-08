@@ -44,8 +44,8 @@ enum class PolychromeItTexture {
         resolveThis().createSymbolicLinkPointingTo(path)
     }
 
-    private fun get() = runCatching {
-        read(File(path.toString()))
+    private fun get() = path.runCatching {
+        read(toFile())
     }.getOrNull()
 
     @Volatile
@@ -78,8 +78,8 @@ enum class PolychromeItTexture {
                 runCatching {
                     while (true) {
                         key = take()
-                        for (event in key.pollEvents()) {
-                            val path = event.context()
+                        key.pollEvents().forEach {
+                            val path = it.context()
                             if (path is Path && path.fileName.name == imageFilename) {
                                 freshen()
                                 generatePatchedShaderpack()
@@ -96,8 +96,6 @@ enum class PolychromeItTexture {
         }
 
     companion object : ModInitializer {
-        override fun onInitialize() {
-            diffuse.watch()
-        }
+        override fun onInitialize() = diffuse.watch() ?: Unit
     }
 }

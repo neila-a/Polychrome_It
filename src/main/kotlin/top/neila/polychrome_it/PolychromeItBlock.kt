@@ -34,24 +34,21 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
     image_pixel_block({
         val x = abs(x)
         val z = abs(z)
-        runCatching {
-            PolychromeItTexture.diffuse.image!!.run {
-                val x = x % width
-                val y = z % height
-                getRGB(x, y)
-                /*private val grassBlockTopAverageColor = 0x91
-                return color(
-                    red(originalColor) * 255 / grassBlockTopAverageColor,
-                    green(originalColor) * 255 / grassBlockTopAverageColor,
-                    blue(originalColor) * 255 / grassBlockTopAverageColor
-                )*/
-            }
+        PolychromeItTexture.diffuse.image!!.runCatching {
+            getRGB(x % width, z % height)
+            /*private val grassBlockTopAverageColor = 0x91
+            return color(
+                red(originalColor) * 255 / grassBlockTopAverageColor,
+                green(originalColor) * 255 / grassBlockTopAverageColor,
+                blue(originalColor) * 255 / grassBlockTopAverageColor
+            )*/
         }.getOrElse {
-            val xForUse = if (z and 1 == 0) x else x + 1
-            if (xForUse and 1 == 0)
-                black
-            else
-                missingno
+            (if (z and 1 == 0) x else x + 1).let { xForUse ->
+                if (xForUse and 1 == 0)
+                    black
+                else
+                    missingno
+            }
         }
     }),
     simple_gradient_block({
@@ -59,26 +56,26 @@ enum class PolychromeItBlock(val tint: BlockPos.() -> Int) {
         color(x, y, z)
     });
 
-    val registered = run {
-        val identifier = fromNamespaceAndPath(MOD_ID, name)
-        val blockKey = create(Registries.BLOCK, identifier)
-
-        register(
-            BuiltInRegistries.BLOCK,
-            blockKey,
-            Block(
-                // 必须设置 mapColor
-                // 否则 Xaero 地图无法正确显示颜色
-                // 尽管我们并不需要 mapColor 来提供颜色
-                Blocks.STONE.properties()
-            )
-        ).apply {
-            val itemKey = create(Registries.ITEM, identifier)
+    val registered = fromNamespaceAndPath(MOD_ID, name).let { identifier ->
+        create(Registries.BLOCK, identifier).let {
             register(
-                BuiltInRegistries.ITEM,
-                itemKey,
-                BlockItem(this, Properties().setId(itemKey).useBlockDescriptionPrefix())
-            ).run {
+                BuiltInRegistries.BLOCK,
+                it,
+                Block(
+                    // 必须设置 mapColor
+                    // 否则 Xaero 地图无法正确显示颜色
+                    // 尽管我们并不需要 mapColor 来提供颜色
+                    Blocks.STONE.properties()
+                )
+            )
+        }.apply {
+            create(Registries.ITEM, identifier).let {
+                register(
+                    BuiltInRegistries.ITEM,
+                    it,
+                    BlockItem(this, Properties().setId(it).useBlockDescriptionPrefix())
+                )
+            }.run {
                 registerBlocks(BY_BLOCK, this)
             }
 

@@ -10,9 +10,7 @@ class PolychromeItLootTableProvider(
     packOutput: FabricPackOutput,
     registriesFuture: CompletableFuture<Provider>
 ) : FabricBlockLootSubProvider(packOutput, registriesFuture) {
-    override fun generate() {
-        for (block in entries) {
-            dropSelf(block.registered)
-        }
+    override fun generate() = entries.forEach {
+        dropSelf(it.registered)
     }
 }

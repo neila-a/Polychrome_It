@@ -27,16 +27,16 @@ private val allWhiteTemplate = ModelTemplate(
 )
 
 class PolychromeItModelProvider(output: FabricPackOutput) : FabricModelProvider(output) {
-    override fun generateBlockStateModels(blockModelGenerators: BlockModelGenerators) = with(blockModelGenerators) {
-        for (block in entries) {
-            val model = allWhiteTemplate.create(block.registered, TextureMapping(), modelOutput)
-            blockStateOutput.accept(
-                dispatch(block.registered, BlockModelGenerators.plainVariant(model))
-            )
-            registerSimpleItemModel(block.registered, model)
+    override fun generateBlockStateModels(blockModelGenerators: BlockModelGenerators) = blockModelGenerators.run {
+        entries.forEach {
+            allWhiteTemplate.create(it.registered, TextureMapping(), modelOutput).let { model ->
+                blockStateOutput.accept(
+                    dispatch(it.registered, BlockModelGenerators.plainVariant(model))
+                )
+                registerSimpleItemModel(it.registered, model)
+            }
         }
     }
 
-    override fun generateItemModels(itemModelGenerators: ItemModelGenerators) {
-    }
+    override fun generateItemModels(itemModelGenerators: ItemModelGenerators) = Unit
 }
