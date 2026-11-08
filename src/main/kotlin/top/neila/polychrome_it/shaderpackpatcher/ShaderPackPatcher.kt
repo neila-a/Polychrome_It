@@ -50,7 +50,7 @@ enum class ShaderPackPatcher {
             val builder = StringBuilder(startText + "\n")
             PolychromeItTexture.entries.forEach {
                 builder.appendLine(
-                    "customTexture.polychrome${
+                    "customTexture.polychromeIt${
                         it.name.replaceFirstChar { char ->
                             char.uppercaseChar()
                         }
@@ -62,18 +62,18 @@ enum class ShaderPackPatcher {
             // 把诊断开关放到 Misc/Debugging 设置页，紧挨 Bliss 自带 DEBUG_VIEW 之后
             props.writeText(
                 builder.toString()
-                    .replace("DEBUG_VIEW [the_end_orb]", "DEBUG_VIEW POLYCHROME_DEBUG [the_end_orb]")
+                    .replace("DEBUG_VIEW [the_end_orb]", "DEBUG_VIEW POLYCHROME_IT_DEBUG [the_end_orb]")
             )
 
             // 全精度地形（all_solid）：Bliss 已通过 flat varying float blockID（= mc_Entity.x，即本 mod 在
-            // block.properties 中为本方块指定的固定 ID）把方块 ID 传到片元着色器，故只需定义 POLYCHROME_HAS_BLOCKID，
+            // block.properties 中为本方块指定的固定 ID）把方块 ID 传到片元着色器，故只需定义 POLYCHROME_IT_HAS_BLOCKID，
             // polychrome_it.glsl 直接用 blockID 与注入的 #define 比对识别。
             // include 锚点放在 blockID 声明之后，确保函数定义时 blockID 已在其作用域内。
             resolve("shaders/dimensions/all_solid.fsh").inject(
                 includeAnchor = "flat varying float blockID;",
                 callBefore = "vec4 data1 = clamp( encode(viewToWorld(normal), PackLightmaps), 0.0, 1.0);",
                 callText = loadPatch("call_injection.glsl"),
-                preInclude = "#define POLYCHROME_HAS_BLOCKID"
+                preInclude = "#define POLYCHROME_IT_HAS_BLOCKID"
             )
             // DH LOD 地形（DH_solid）：无 blockID，polychrome_it.glsl 自动退化为洋红后备判定
             // （DH 方块仍由 DhApiBlockColorOverrideEvent 回传洋红）。
@@ -94,7 +94,7 @@ enum class ShaderPackPatcher {
             val idDefines = buildString {
                 PolychromeItBlock.entries.forEach { block ->
                     blockIds[block]?.let {
-                        appendLine("#define POLYCHROME_ID_${block.name.uppercase()} $it")
+                        appendLine("#define POLYCHROME_IT_ID_${block.name.uppercase()} $it")
                     }
                 }
 

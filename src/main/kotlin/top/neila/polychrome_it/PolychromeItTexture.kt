@@ -66,7 +66,7 @@ enum class PolychromeItTexture {
             thread(
                 start = true,
                 isDaemon = true,
-                name = "PolychromeIt image watcher for $name"
+                name = "Polychrome It! image watcher for $name"
             ) {
                 generatePatchedShaderpack()
                 var key = dir.parent.register(
